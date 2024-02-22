@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name":"talker C++Debug ",
+            "request": "launch",
+            "type": "cppdbg",
+            "miDebuggerServerAddress": "localhost:3000",
+            "cwd" : "${workspaceFolder}",
+            "program":"/home/robert/robot_project/ros2_ws/install/cpp_pubsub/lib/cpp_pubsub/talker",
+            "setupCommands":[
+                {
+                    "description":"Enable prettyprint for gdb",
+                    "text":"-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

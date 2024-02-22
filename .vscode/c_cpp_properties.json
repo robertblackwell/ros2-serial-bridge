@@ -1,0 +1,13 @@
+{
+    "configurations": [
+        {
+            "name": "LINUX",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/opt/ros/iron/include/**"
+            ],
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}
