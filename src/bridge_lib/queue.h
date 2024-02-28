@@ -59,12 +59,16 @@ inline int fd_set_non_blocking(int fd)
         Queue() = default;
         ~Queue() = default;
 
-        void put(T data) {
+        std::size_t put(T&& data) {
+            std::size_t how_many;
             {
+                // printf("Queue::put data: %s\n", data.c_str());
                 std::lock_guard<std::mutex> lock{m_queue_mutex};
                 m_queue.push(std::move(data));
+                how_many = m_queue.size();
                 m_queue_cond_var.notify_one();
             }
+            return how_many;
         }
 
         void get(T &data) {
@@ -74,6 +78,7 @@ inline int fd_set_non_blocking(int fd)
                     return ((!m_queue.empty()) && (m_queue.size() > 0));
                 });
                 data = std::move(m_queue.front());
+
                 m_queue.pop();
             }
         }
@@ -84,6 +89,7 @@ inline int fd_set_non_blocking(int fd)
                 if ((!m_queue.empty()) && (m_queue.size() > 0)) {
                     data = std::move(m_queue.front());
                     m_queue.pop();
+                    // printf("Queue::get_nowait NOT empty data:%s\n", data.c_str());
                     return true;
                 }
             }
@@ -105,6 +111,7 @@ inline int fd_set_non_blocking(int fd)
     requires std::is_assignable_v<T&, T&&>
     class FdQueue  
     {
+
     private:
         int m_write_fd;
         int m_read_fd;
@@ -129,13 +136,18 @@ inline int fd_set_non_blocking(int fd)
             m_read_fd = fd;
 #endif
         }
+        ~FdQueue()
+        {
+            close(m_write_fd);
+            close(m_read_fd);
+        }
         bool empty()
         {
             return m_threadsafe_queue.empty();
         }
-        void put(T t)
+        void put(T&& t)
         {
-            m_threadsafe_queue.put(t);
+            [[maybe_unused]]std::size_t qn = m_threadsafe_queue.put(std::move(t));
 #if defined(QUEUE_PIPE)
             // const char* junk = "X";
             int n = write(m_write_fd, "X", 1);
@@ -151,17 +163,19 @@ inline int fd_set_non_blocking(int fd)
             }
 #endif
         }
+
         void get(T& t)
         {
             char buf[10];
             [[maybe_unused]]ssize_t n = read(m_read_fd, buf, 1);
             m_threadsafe_queue.get(t);
         }
+        
         bool get_nowait(T& t)
         {
 #if defined(QUEUE_PIPE)
             char buf[10];
-            int n = read(m_read_fd, buf, 1);
+            [[maybe_unused]]ssize_t n = read(m_read_fd, buf, 1);
 #else
             std::uint64_t v;
             int n = read(this->read_fileno(), &v, sizeof(v));
@@ -197,10 +211,11 @@ inline int fd_set_non_blocking(int fd)
         {
             return m_threadsafe_queue.empty();
         }
-        void put(T t)
+        std::size_t put(T&& t)
         {
-            m_threadsafe_queue.put(t);
+            std::size_t n = m_threadsafe_queue.put(std::move(t));
             m_trigger_func();
+            return n;
         }
         void get(T& t)
         {

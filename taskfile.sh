@@ -1,9 +1,10 @@
 function build {
 	cd ../..
-	# colcon build --packages-select cpp_serial_bridge --event-handlers console_direct+ --cmake-args -DCMAKE_VERBOSE_MAKEFILE=ON
+	# colcon build --packages-select cpp_serial_bridge --event-handlers console_direct+ --cmake-args -DCMAKE_VERBOSE_MAKEFILE=ON --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 	colcon build --packages-select cpp_serial_bridge --symlink-install \
 		--event-handlers console_direct+ \
-		--cmake-args -DCMAKE_VERBOSE_MAKEFILE=ON
+		--cmake-args -DCMAKE_VERBOSE_MAKEFILE=ON \
+		--cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 	source install/setup.bash
 }
 function build_debug {

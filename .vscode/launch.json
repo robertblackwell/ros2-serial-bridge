@@ -5,19 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name":"talker C++Debug ",
+            "name":"test_msgs C++Debug ",
             "request": "launch",
             "type": "cppdbg",
-            "miDebuggerServerAddress": "localhost:3000",
             "cwd" : "${workspaceFolder}",
-            "program":"/home/robert/robot_project/ros2_ws/install/cpp_pubsub/lib/cpp_pubsub/talker",
-            "setupCommands":[
-                {
-                    "description":"Enable prettyprint for gdb",
-                    "text":"-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ]
+            "program":"/home/robert/robot_project/ros2_ws/src/cpp_serial_bridge/src/mytests/build/test_msgs/test_msgs",
         }
     ]
 }

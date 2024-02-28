@@ -236,6 +236,13 @@ std::string IoBuffer::to_string()
     std::string s(p, m_length);
     return s;
 }
+std::string IoBuffer::substr(std::size_t start, std::size_t len)
+{
+    char* p = &(m_cPtr[start]);
+    std::string s(p, len);
+    return s;
+}
+
 bool IoBuffer::contains(void* ptr)
 {
     char* p = (char*) ptr;

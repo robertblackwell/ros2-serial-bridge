@@ -1,12 +1,23 @@
 {
     "configurations": [
         {
-            "name": "LINUX",
+            "name": "LinuxRos",
+            "browse":{
+                "databaseFilename": "${default}",
+                "limitSymbolsToIncludedHeaders": false
+            },
             "includePath": [
-                "${workspaceFolder}/**",
-                "/opt/ros/iron/include/**"
+                // "${workspaceFolder}/include",
+                // "${workspaceFolder}/src",
+                // "${workspaceFolder}/**",
+                // "${workspaceFolder}/../../install/sample_interfaces/include/**",
+                // "/opt/ros/iron/include/**"
             ],
-            "intelliSenseMode": "linux-gcc-x64"
+            "compileCommands":"/home/robert/robot_project/ros2_ws/build/compile_commands.json",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "c++20"
         }
     ],
     "version": 4

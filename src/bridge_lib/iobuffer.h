@@ -60,6 +60,7 @@ protected:
 
 public:
     using SPtr = std::shared_ptr<IoBuffer>;
+    using UPtr = std::unique_ptr<IoBuffer>;
     static std::size_t min_buffer_size;
 #if 0
     static SPtr makeSPtr(std::size_t capacity)
@@ -166,7 +167,7 @@ public:
      * Returns a string that has the same value as the used portion of the buffer
      */
     std::string to_string();
-
+    std::string substr(std::size_t start, std::size_t len);
     /**
      * Determines if an address value (pointer) is within the address range of the
      * the buffer ie
