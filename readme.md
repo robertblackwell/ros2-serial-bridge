@@ -41,10 +41,12 @@ and interestingly the c/c++ code underneath `rclpy`.
           - a Linux `eventfd` or an equivalent well known trick with pipes. Note the Comms thread only ever suspends/waits on a `select` or `poll` system call.
     - `publisher_test_cmds` - is a standard ROS2 node that listens for ALL the messages that `bridge.cpp` forwards from the micro controller. And also periodically sends 'command messages' to the micro controller.
 
-    These two components constitute a __proof of concept__. The ROS messages that these two components exchange are custom for this purpose and are dependencies for this project. They can be found
+    These two components constitute a __proof of concept__. 
+    
+    The ROS messages that these two components exchange are custom for this purpose and are dependencies for this project. They can be found
     at [https://gitbub.com/robertblackwell/ros2_bridge_msgs](https://gitbub.com/robertblackwell/ros2_bridge_msgs)
 
-    The specific firmware required for the proof of concept is called (not surprisingly) `bridge.cpp` . 
+    The specific firmware required for the proof of concept is called (not surprisingly) `bridge.cpp`. 
 
 
 -   other components:
