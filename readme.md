@@ -35,7 +35,7 @@ and interestingly the c/c++ code underneath `rclpy`.
     - `bridge.cpp`  this is the actual bridge program in a form that is approaching final. It consists of two threads 
       - one running code that communicates with the micro controller 
       - one that is a ROS2 node with a number of `subscribers` and `producers`.
-      - they (the two threads) communicate through 2 `threadsafe queue`
+      - they (the two threads) communicate through 2 `threadsafe queues`
         - the 'input queue' allows the comms thread to pass 'messsages' to the ROS Node thread. It wakes the Node thread using the `rclcpp::GuardCondition::trigger` function.
         - the 'output queue' allows the ROS Node thread to pass 'messages' to the comms threas. It wakes the Comms thread using
           - either a Linux `eventfd` or an equivalent well known trick with pipes. Note the Comms thread only ever suspends/waits on a `select` or `poll` system call.
