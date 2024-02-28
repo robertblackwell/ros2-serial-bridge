@@ -57,7 +57,7 @@ and interestingly the c/c++ code underneath `rclpy`.
 
 # Whats next
 
--   a few more communication spped tests - both ways at the "same" time.
+-   a few more communication speed tests - both ways at the "same" time.
 -   running all of this on a RaspberryPi so that I can start it talking to my robot while it moves. This 'bridge' thing is really just a rabbit hole I fell down while trying to  get a simple robot working.
 -   hook up a ROS2 Node being driven by a game controller.
 -   have my robot publish `odometry` messages so I can start working with ROS2 navigation.
