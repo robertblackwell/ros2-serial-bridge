@@ -32,27 +32,27 @@ and interestingly the c/c++ code underneath `rclpy`.
 -   This project requires companion firmware for a micro-controller, see [github.com/robertblackwell/pico-bridge-firmware](github.com/robertblackwell/pico-bridge-firmware)
 -   current working components:
     
-    - `bridge.cpp`  this is the actual bridge program in a form that is approaching final. It consists of two threads 
+    - __bridge.cpp__  this is the actual bridge program in a form that is approaching final. It consists of two threads 
       - one running code that communicates with the micro controller 
-      - one that is a ROS2 node with a number of `subscribers` and `producers`.
-      - they (the two threads) communicate through 2 `threadsafe queues`
-        - the 'input queue' allows the comms thread to pass 'messages' to the ROS Node thread. It wakes the Node thread using the `rclcpp::GuardCondition::trigger` function.
+      - one that is a ROS2 node with a number of __subscribers__ and __publishers__.
+      - they (the two threads) communicate through 2 __threadsafe queues__
+        - the 'input queue' allows the comms thread to pass 'messages' to the ROS Node thread. It wakes the Node thread using the __rclcpp::GuardCondition::trigger__ function.
         - the 'output queue' allows the ROS Node thread to pass 'messages' to the comms thread. It wakes the Comms thread using either:
-          - a Linux `eventfd` or an equivalent well known trick with pipes. Note the Comms thread only ever suspends/waits on a `select` or `poll` system call.
-    - `publisher_test_cmds` - is a standard ROS2 node that listens for ALL the messages that `bridge.cpp` forwards from the micro controller. And also periodically sends 'command messages' to the micro controller.
+          - a Linux __eventfd__ or an equivalent well known trick with pipes. Note the Comms thread only ever suspends/waits on a __select__ or __poll__ system call.
+    - __publisher_test_cmds__ - is a standard ROS2 node that listens for ALL the messages that __bridge.cpp__ forwards from the micro controller. And also periodically sends 'command messages' to the micro controller.
 
     These two components constitute a __proof of concept__. 
     
     The ROS messages that these two components exchange are custom for this purpose and are dependencies for this project. They can be found
     at [https://gitbub.com/robertblackwell/ros2_bridge_msgs](https://gitbub.com/robertblackwell/ros2_bridge_msgs)
 
-    The specific firmware required for the proof of concept is called (not surprisingly) `bridge.cpp`. 
+    The specific firmware required for the proof of concept is called (not surprisingly) __bridge.cpp__. 
 
 
 -   other components:
 
-    -   `bridge_speed_test.cpp` together with the correct firware (`test_transport.cpp`) perform a communication speed test. The firmware sends data as fast as it can and the Linux program (`bridge_speed_test.cpp`) reads, optionally displays it, and computes throughput. I was surprised to see numbers in the range of 660KBytes/Sec to 690KBytes/sec.
-    -  `bridg_test_cmds.cpp` like `bridge.cpp` consists of a comms thread and a ROS Node thread. The ROS Node cycles through the full vocabulary of messages to demonstrate the micro controller is seeing them and responding. The Verificaton is at this point only me watching the output for anomolies.  
+    -   __bridge_speed_test.cpp__ together with the correct firware (__test_transport.cpp__) perform a communication speed test. The firmware sends data as fast as it can and the Linux program (`bridge_speed_test.cpp`) reads, optionally displays it, and computes throughput. I was surprised to see numbers in the range of 660KBytes/Sec to 690KBytes/sec.
+    -  __bridg_test_cmds.cpp__ like __bridge.cpp__ consists of a comms thread and a ROS Node thread. The ROS Node cycles through the full vocabulary of messages to demonstrate the micro controller is seeing them and responding. The Verificaton is at this point only me watching the output for anomolies.  
 
 
 # Whats next
