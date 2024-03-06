@@ -122,7 +122,7 @@ void ros2_bridge::SerialLink::try_write()
         }
     }
     if(m_write_buffer_uptr) {
-        // printf("try_write output buffer %s\n", m_write_buffer.to_string().c_str());
+        printf("try_write output buffer %s\n", m_write_buffer_uptr->to_string().c_str());
         ssize_t n = write(m_serial_fd, m_write_buffer_uptr->data(), m_write_buffer_uptr->size());
         // printf("try_write after write n: %ld\n", n);
         int saved_write_errno = errno;

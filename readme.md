@@ -41,7 +41,7 @@ and interestingly the c/c++ code underneath `rclpy`.
           - a Linux __eventfd__ ,
           - or an equivalent well known trick with pipes. 
         
-        Note the Comms thread only ever suspends/waits on a __select__ or __poll__ system call.
+            Note the Comms thread only ever suspends/waits on a __select__ or __poll__ system call.
     
     - __publisher_test_cmds__ - is a standard ROS2 node that listens for ALL the messages that __bridge.cpp__ forwards from the micro controller. And also periodically sends 'command messages' to the micro controller.
 

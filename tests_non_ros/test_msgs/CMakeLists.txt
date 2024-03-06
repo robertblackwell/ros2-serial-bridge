@@ -20,9 +20,9 @@ target_include_directories(${TARGET}
 	PUBLIC 
 		/opt/ros/iron/include/rosidl_runtime_cpp
 		/opt/ros/iron/include/rosidl_runtime_c
-		${TESTS_INCLUDE_DIRS} 
+		${TESTS_INCLUDE_DIRS}
+		${JSON_LIB_DIR}
 		${PKG_SRC_DIR}
-		${PKG_SRC_DIR}/json
 		${INSTALL_DIR}/sample_interfaces/include/sample_interfaces
 		${LOCAL_TESTS_INCLUDE_PATHS})
 

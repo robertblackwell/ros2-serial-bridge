@@ -36,12 +36,12 @@ public:
 		m_count =  0;
 		m_cmd_index = 0;
 
-		m_echo_publisher_sptr          = this->create_publisher<sample_interfaces::msg::EchoCmd>("echo", 10);
-		m_rpm_publisher_sptr           = this->create_publisher<sample_interfaces::msg::MotorRpmCmd>("rpm", 10);
-		m_pwm_publisher_sptr           = this->create_publisher<sample_interfaces::msg::MotorPwmCmd>("pwm", 10);
-		m_text_publisher_sptr          = this->create_publisher<sample_interfaces::msg::TextMsg>("txtout", 10);
+		m_echo_publisher_sptr          = this->create_publisher<sample_interfaces::msg::EchoCmd>("echo_cmd", 10);
+		m_rpm_publisher_sptr           = this->create_publisher<sample_interfaces::msg::MotorRpmCmd>("rpm_cmd", 10);
+		m_pwm_publisher_sptr           = this->create_publisher<sample_interfaces::msg::MotorPwmCmd>("pwm_cmd", 10);
+		m_text_publisher_sptr          = this->create_publisher<sample_interfaces::msg::TextMsg>("text_out", 10);
 		m_load_test_publisher_sptr     = this->create_publisher<sample_interfaces::msg::LoadTestCmd>("loadtest", 10);
-		m_read_encoders_publisher_sptr = this->create_publisher<sample_interfaces::msg::ReadEncodersCmd>("readencoders", 10);
+		m_read_encoders_publisher_sptr = this->create_publisher<sample_interfaces::msg::ReadEncodersCmd>("read_encoders_cmd", 10);
 		
 		m_timer = this->create_wall_timer(5000ms, std::bind(&Bridge::timer_callback, this));
 		/**
@@ -75,9 +75,13 @@ public:
 			case 2: f_read(); break;
 			case 3: f_read(); break;
 			case 4: f_read(); break;
-			case 5: f_stop(); break;
+			case 5: f_read(); break;
+			case 6: f_read(); break;
+			case 7: f_read(); break;
+			case 8: f_read(); break;
+			case 9: f_stop(); break;
 		}
-		m_cmd_index = (m_cmd_index + 1) % 6;
+		m_cmd_index = (m_cmd_index + 1) % 10;
 	}
 	int m_byte_count;
 	int m_msg_count;

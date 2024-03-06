@@ -1,6 +1,6 @@
 #include <format>
-#include "json/jsoncons/json.hpp"
-#include "json/jsoncons_ext/jsonpath/jsonpath.hpp"
+#include "jsoncons/json.hpp"
+#include "jsoncons_ext/jsonpath/jsonpath.hpp"
 #include "msgs.h"
 #include "iobuffer.h"
 
@@ -66,6 +66,7 @@ bool deserialize(IoBuffer& buffer, TwoEncoderStatus& status)
     if(! test_buffer_prefix(buffer, "1J")) {
         return false;
     }
+    printf("deserialize TwoEncoderStatus %s\n", buffer.to_string().c_str());
     std::string json_string = buffer.to_string().substr(2,std::string::npos);
     jsoncons::json j = jsoncons::json::parse(json_string);
     status.left.sample_sum = j[0]["ss"].as<int64_t>();
@@ -147,26 +148,26 @@ void serialize(EchoCmd& cmd, IoBuffer& buffer)
         result +=  " " + s;
     }
     // auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "echo %s\n", result.c_str());
-    buffer.append("echo "); buffer.append(result); buffer.append("\n");
+    buffer.append("echo "); buffer.append(result); 
     // buffer.commit(len);
 
 }
 void serialize(LoadTestCmd& cmd, IoBuffer& buffer)
 {
     buffer.clear();
-    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "load %d %d %d\n", cmd.count, cmd.msg_length, cmd.msgs_per_seecond);
+    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "load %d %d %d", cmd.count, cmd.msg_length, cmd.msgs_per_seecond);
     buffer.commit(len);
 }
 void serialize(MotorPwmCmd& cmd, IoBuffer& buffer)
 {
     buffer.clear();
-    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "pwm %f %f\n", cmd.left_motor_pwm, cmd.right_motor_pwm);
+    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "pwm %f %f", cmd.left_motor_pwm, cmd.right_motor_pwm);
     buffer.commit(len);
 }
 void serialize(MotorRpmCmd& cmd, IoBuffer& buffer)
 {
     buffer.clear();
-    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "rpm %f %f\n", cmd.left_motor, cmd.right_motor);
+    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "rpm %f %f", cmd.left_motor, cmd.right_motor);
     buffer.commit(len);
 }
 void serialize(TextMsg& text_msg, IoBuffer& buffer)
@@ -178,7 +179,7 @@ void serialize(TextMsg& text_msg, IoBuffer& buffer)
 void serialize(ReadEncodersCmd& cmd, IoBuffer& buffer)
 {
     buffer.clear();
-    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "e %d\n", cmd.n);
+    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "e %d", cmd.n);
     buffer.commit(len);
 }
 
@@ -199,4 +200,5 @@ void serialize(OutputMessage& msg, IoBuffer& buffer)
     } else {
         throw std::runtime_error("serialize else branch");
     }
+    buffer.append("\n");
 }

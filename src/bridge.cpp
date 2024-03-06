@@ -50,15 +50,15 @@ public:
 		m_count = 0;
 
 		m_response_publisher_sptr = this->create_publisher<sample_interfaces::msg::CmdResponse>("cmd_response", 10);
-		m_encoder_publisher_sptr  = this->create_publisher<sample_interfaces::msg::TwoEncoderStatus>("encoders", 10);
-		m_text_publisher_sptr     = this->create_publisher<sample_interfaces::msg::TextMsg>("text", 10);
+		m_encoder_publisher_sptr  = this->create_publisher<sample_interfaces::msg::TwoEncoderStatus>("two_encoders_status", 10);
+		m_text_in_publisher_sptr     = this->create_publisher<sample_interfaces::msg::TextMsg>("text_in", 10);
 
-		m_echo_subscriber_sptr          = this->create_subscription<sample_interfaces::msg::EchoCmd>(        "echo",10, std::bind(&Bridge::echo_handler,          this, std::placeholders::_1));
-		m_rpm_subscriber_sptr           = this->create_subscription<sample_interfaces::msg::MotorRpmCmd>(    "rpm",10, std::bind(&Bridge::rpm_handler,           this, std::placeholders::_1));
-		m_pwm_subscriber_sptr           = this->create_subscription<sample_interfaces::msg::MotorPwmCmd>(    "pwm",10, std::bind(&Bridge::pwm_handler,           this, std::placeholders::_1));
+		m_echo_subscriber_sptr          = this->create_subscription<sample_interfaces::msg::EchoCmd>(        "echo_cmd",10, std::bind(&Bridge::echo_handler,          this, std::placeholders::_1));
+		m_rpm_subscriber_sptr           = this->create_subscription<sample_interfaces::msg::MotorRpmCmd>(    "rpm_cmd",10, std::bind(&Bridge::rpm_handler,           this, std::placeholders::_1));
+		m_pwm_subscriber_sptr           = this->create_subscription<sample_interfaces::msg::MotorPwmCmd>(    "pwm_cmd",10, std::bind(&Bridge::pwm_handler,           this, std::placeholders::_1));
 		// m_load_test_subscriber_sptr     = this->create_subscription<sample_interfaces::msg::LoadTestCmd>(    "x",10, std::bind(&Bridge::load_test_handler,     this, std::placeholders::_1));
-		m_read_encoders_subscriber_sptr = this->create_subscription<sample_interfaces::msg::ReadEncodersCmd>("readencoders",10, std::bind(&Bridge::read_encoders_handler, this, std::placeholders::_1));
-		m_text_subscriber_sptr          = this->create_subscription<sample_interfaces::msg::TextMsg>(        "textout",10, std::bind(&Bridge::text_handler,          this, std::placeholders::_1));
+		m_read_encoders_subscriber_sptr = this->create_subscription<sample_interfaces::msg::ReadEncodersCmd>("read_encoders_cmd",10, std::bind(&Bridge::read_encoders_handler, this, std::placeholders::_1));
+		m_text_out_subscriber_sptr          = this->create_subscription<sample_interfaces::msg::TextMsg>(        "text_out",10, std::bind(&Bridge::text_handler,          this, std::placeholders::_1));
 
 		m_timer = this->create_wall_timer(200000ms, std::bind(&Bridge::timer_callback, this));
 		/**
@@ -73,24 +73,36 @@ public:
 
 	void echo_handler         (const sample_interfaces::msg::EchoCmd& msg) const        { OutputMessage omsg{msg}; serialize_send(omsg); }
 	void rpm_handler          (const sample_interfaces::msg::MotorRpmCmd& msg) const    { OutputMessage omsg{msg}; serialize_send(omsg); }
-	void pwm_handler          (const sample_interfaces::msg::MotorPwmCmd& msg) const    { OutputMessage omsg{msg}; serialize_send(omsg); }
+	void pwm_handler          (const sample_interfaces::msg::MotorPwmCmd& msg) const    { 
+		printf("bridge::pwm_handler \n");
+		OutputMessage omsg{msg}; 
+		serialize_send(omsg); 
+	}
 	void load_test_handler    (const sample_interfaces::msg::LoadTestCmd& msg) const    { OutputMessage omsg{msg}; serialize_send(omsg); }
-	void read_encoders_handler(const sample_interfaces::msg::ReadEncodersCmd& msg)const { OutputMessage omsg{msg}; serialize_send(omsg); }
+	void read_encoders_handler(const sample_interfaces::msg::ReadEncodersCmd& msg)const {
+		printf("bridge::read_encoders_handler \n");
+		OutputMessage omsg{msg}; 
+		serialize_send(omsg); 
+	}
 	void text_handler         (const sample_interfaces::msg::TextMsg& msg)const         { OutputMessage omsg{msg}; serialize_send(omsg); }
 	void serialize_send(OutputMessage& msg) const
 	{
 		ros2_bridge::IoBuffer::UPtr buf_uptr = std::make_unique<ros2_bridge::IoBuffer>();
 		serialize(msg, *buf_uptr);
+		printf("bridge::serialize_send buffer: [%s]\n", buf_uptr->to_string().c_str());
 		m_serial_link_uptr->send_threadsafe(std::move(buf_uptr));
 		buf_uptr = nullptr;
+		std::this_thread::yield();
 	}
 	void on_recv_message(ros2_bridge::IoBuffer::UPtr buffer)
 	{
-		printf("bridge on_recv_message %s\n", buffer->to_string().c_str());
+		printf("bridge on_recv_message: [%s]\n", buffer->to_string().c_str());
 		InputMessage inmsg;
-		if(deserialize(*buffer, inmsg)) {
-			;
-		}
+		if(!deserialize(*buffer, inmsg)) {
+			buffer = nullptr;
+			throw std::runtime_error("deserialization failed");
+		} 
+		buffer = nullptr;
 		if(auto response_ptr = std::get_if<CmdResponse>(&inmsg)) {
 			m_response_publisher_sptr->publish(*response_ptr);
 		} else if(auto two_encoders_ptr = std::get_if<TwoEncoderStatus>(&inmsg)) {
@@ -98,16 +110,18 @@ public:
 			m_encoder_publisher_sptr->publish(*two_encoders_ptr);
 		} else if(auto text_msg_ptr = std::get_if<TextMsg>(&inmsg)) {
 			std_msgs::msg::String msg;
-			m_text_publisher_sptr->publish(*text_msg_ptr);
+			m_text_in_publisher_sptr->publish(*text_msg_ptr);
 		} else {
-
+			printf("bridge::on_recv_message ELSE CLAUSE\n");
 		}
+		std::this_thread::yield();
 	}
 	/**
 	 * Periodically send a message to the micro controller
 	*/
   	void timer_callback()
 	{
+		return;
 		m_count++;
 		EchoCmd echo{};
 		echo.data = std::vector{std::format("ABCDEFG{}", m_count)};
@@ -128,12 +142,12 @@ public:
 
 	rclcpp::Publisher<sample_interfaces::msg::CmdResponse>::SharedPtr      	  m_response_publisher_sptr;
 	rclcpp::Publisher<sample_interfaces::msg::TwoEncoderStatus>::SharedPtr 	  m_encoder_publisher_sptr;
-	rclcpp::Publisher<sample_interfaces::msg::TextMsg>::SharedPtr          	          m_text_publisher_sptr;
+	rclcpp::Publisher<sample_interfaces::msg::TextMsg>::SharedPtr             m_text_in_publisher_sptr;
 	
 	rclcpp::Subscription<sample_interfaces::msg::EchoCmd>::SharedPtr       	  m_echo_subscriber_sptr;
 	rclcpp::Subscription<sample_interfaces::msg::MotorRpmCmd>::SharedPtr   	  m_rpm_subscriber_sptr;
 	rclcpp::Subscription<sample_interfaces::msg::MotorPwmCmd>::SharedPtr   	  m_pwm_subscriber_sptr;
-	rclcpp::Subscription<sample_interfaces::msg::TextMsg>::SharedPtr       	  m_text_subscriber_sptr;
+	rclcpp::Subscription<sample_interfaces::msg::TextMsg>::SharedPtr       	  m_text_out_subscriber_sptr;
 	rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr       		  m_twist_subscriber_sptr;
 	rclcpp::Subscription<sample_interfaces::msg::LoadTestCmd>::SharedPtr      m_load_test_subscriber_sptr;
 	rclcpp::Subscription<sample_interfaces::msg::ReadEncodersCmd>::SharedPtr m_read_encoders_subscriber_sptr;

@@ -6,8 +6,8 @@
 #include <vector>
 #include <optional>
 #include <format>
-#include "json/jsoncons/json.hpp"
-#include "json/jsoncons_ext/jsonpath/jsonpath.hpp"
+#include "jsoncons/json.hpp"
+#include "jsoncons_ext/jsonpath/jsonpath.hpp"
 
 #include "bridge_lib/msgs.h"
 #include "bridge_lib/iobuffer.h"

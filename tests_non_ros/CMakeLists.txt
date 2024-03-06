@@ -41,20 +41,22 @@ include (GNUInstallDirs)
 
 set(TESTS_DIR  ${CMAKE_CURRENT_LIST_DIR})
 message("TESTS_DIR       ${TESTS_DIR}")
-cmake_path(GET           TESTS_DIR         PARENT_PATH    PKG_DIR)
-cmake_path(APPEND_STRING PKG_DIR           "/src"          OUTPUT_VARIABLE PKG_SRC_DIR)
-cmake_path(GET           PKG_DIR           PARENT_PATH    WS_SRC_DIR)
-cmake_path(GET           WS_SRC_DIR        PARENT_PATH    WS_DIR)
-cmake_path(APPEND_STRING PKG_SRC_DIR       "/bridge_lib"   OUTPUT_VARIABLE BRIDGE_LIB_DIR )
-cmake_path(APPEND_STRING PKG_SRC_DIR       "/json"         OUTPUT_VARIABLE JSON_LIB_DIR )
-cmake_path(APPEND_STRING TESTS_DIR         "/common"       OUTPUT_VARIABLE TESTS_COMMON_DIR)
-cmake_path(APPEND_STRING WS_DIR            "install"       OUTPUT_VARIABLE WS_INSTALL_DIR)
-cmake_path(APPEND_STRING WS_DIR            "build"         OUTPUT_VARIABLE WS_BUILD_DIR)
+cmake_path(GET           TESTS_DIR         PARENT_PATH          PKG_DIR)
+cmake_path(APPEND_STRING PKG_DIR           "/src"               OUTPUT_VARIABLE PKG_SRC_DIR)
+cmake_path(GET           PKG_DIR           PARENT_PATH          WS_SRC_DIR)
+cmake_path(GET           WS_SRC_DIR        PARENT_PATH          WS_DIR)
+cmake_path(APPEND_STRING PKG_SRC_DIR       "/bridge_lib"        OUTPUT_VARIABLE BRIDGE_LIB_DIR )
+cmake_path(APPEND_STRING PKG_SRC_DIR       "/fbcontrol"         OUTPUT_VARIABLE FBCONTROL_LIB_DIR )
+cmake_path(APPEND_STRING PKG_DIR           "/jsoncons/include"  OUTPUT_VARIABLE JSON_LIB_DIR )
+cmake_path(APPEND_STRING TESTS_DIR         "/common"            OUTPUT_VARIABLE TESTS_COMMON_DIR)
+cmake_path(APPEND_STRING WS_DIR            "install"            OUTPUT_VARIABLE WS_INSTALL_DIR)
+cmake_path(APPEND_STRING WS_DIR            "build"              OUTPUT_VARIABLE WS_BUILD_DIR)
 cmake_path(APPEND_STRING WS_DIR            "install/sample_interfaces/include/sample_interfaces" OUTPUT_VARIABLE SAMPLE_INTERFACES_INCLUDE_DIR)
 
 set(TESTS_INCLUDE_DIRS  
 	${PKG_SRC_DIR} 
 	${BRIDGE_LIB_DIR} 
+	${FBCONTROL_LIB_DIR} 
 	${JSON_LIB_DIR}
 	${TESTS_COMMON_DIR} 
 	${SAMPLE_INTERFACES_INCLUDE_DIR}
@@ -73,11 +75,15 @@ message("PKG_DIR            ${PKG_DIR}")
 message("PKG_SRC_DIR        ${PKG_SRC_DIR}")
 message("WS_SRC_DIR         ${WS_SRC_DIR}")
 message("BRIDGE_LIB_DIR     ${BRIDGE_LIB_DIR}")
+message("JSON_LIB_DIR       ${JSON_LIB_DIR}")
 message("TESTS_COMMON_DIR   ${TESTS_COMMON_DIR}")
 message("TESTS_INCLUDE_DIRS ${TESTS_INCLUDE_DIRS}")
 
 include(CTest) 
 enable_testing()
+
+add_subdirectory(test_first_guess)
+add_subdirectory(test_with_pico)
 
 add_subdirectory(test_msgs)
 add_subdirectory(test_buffers)

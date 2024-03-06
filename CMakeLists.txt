@@ -26,12 +26,24 @@ set(SRC_LIST
 	src/bridge_lib/msgs.h
 	src/bridge_lib/msgs.cpp
 )
+set(INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
+set(SRC_DIR     ${CMAKE_CURRENT_LIST_DIR}/src)
+set(JSON_DIR    ${CMAKE_CURRENT_LIST_DIR}/jsoncons/include)
 
+set(PKG_INCLUDE_DIRS 
+	${CMAKE_CURRENT_LIST_DIR}/include
+	${CMAKE_CURRENT_LIST_DIR}/src
+	${CMAKE_CURRENT_LIST_DIR}/jsoncons/include
+
+)
+
+set(INCLUDE_DIRS)
 # bridge
 add_executable(bridge src/bridge.cpp 	${SRC_LIST})
 target_include_directories(bridge PUBLIC 
     ${CMAKE_CURRENT_LIST_DIR}/include
     ${CMAKE_CURRENT_LIST_DIR}/src
+	${CMAKE_CURRENT_LIST_DIR}/jsoncons/include
 )
 ament_target_dependencies(bridge rclcpp std_msgs geometry_msgs sample_interfaces)
 
@@ -40,6 +52,7 @@ add_executable(bridge_test_cmds src/bridge_test_cmds.cpp ${SRC_LIST})
 target_include_directories(bridge_test_cmds PUBLIC 
     ${CMAKE_CURRENT_LIST_DIR}/include
     ${CMAKE_CURRENT_LIST_DIR}/src
+	${CMAKE_CURRENT_LIST_DIR}/jsoncons/include
 )
 ament_target_dependencies(bridge_test_cmds rclcpp std_msgs geometry_msgs sample_interfaces)
 
@@ -48,6 +61,7 @@ add_executable(bridge_speed_test src/bridge_speed_test.cpp ${SRC_LIST})
 target_include_directories(bridge_speed_test PUBLIC 
     ${CMAKE_CURRENT_LIST_DIR}/include
     ${CMAKE_CURRENT_LIST_DIR}/src
+	${CMAKE_CURRENT_LIST_DIR}/jsoncons/include
 )
 ament_target_dependencies(bridge_speed_test rclcpp std_msgs geometry_msgs sample_interfaces)
 target_compile_definitions(bridge_speed_test 
@@ -61,6 +75,7 @@ add_executable(publisher_test_cmds src/publisher_test_cmds.cpp ${SRC_LIST})
 target_include_directories(publisher_test_cmds PUBLIC 
     ${CMAKE_CURRENT_LIST_DIR}/include
     ${CMAKE_CURRENT_LIST_DIR}/src
+	${CMAKE_CURRENT_LIST_DIR}/jsoncons/include
 )
 ament_target_dependencies(publisher_test_cmds rclcpp std_msgs geometry_msgs sample_interfaces)
 target_compile_definitions(publisher_test_cmds 

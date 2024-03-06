@@ -60,6 +60,22 @@ public:
 	void on_recv_message(IoBuffer::UPtr buf_uptr)
 	{
 		printf("ON RECV MESSAGE callback msg: [%s]\n", buf_uptr->to_string().c_str());
+		InputMessage inmsg;
+		if(!deserialize(*buf_uptr, inmsg)) {
+			throw std::runtime_error("deserialization failed");
+		} 
+		if(auto response_ptr = std::get_if<CmdResponse>(&inmsg)) {
+			printf("command response message\n");
+			// m_response_publisher_sptr->publish(*response_ptr);
+		} else if(auto two_encoders_ptr = std::get_if<TwoEncoderStatus>(&inmsg)) {
+			printf("bridge just got a twoencoder message\n");
+			// m_encoder_publisher_sptr->publish(*two_encoders_ptr);
+		} else if(auto text_msg_ptr = std::get_if<TextMsg>(&inmsg)) {
+			std_msgs::msg::String msg;
+			// m_text_publisher_sptr->publish(*text_msg_ptr);
+		} else {
+			printf("bridge::on_recv_message ELSE CLAUSE\n");
+		}
 		buf_uptr = nullptr;
 	}
 	/**
@@ -82,6 +98,10 @@ public:
 		if(m_output_messages.empty()) {
 			add_to_vector(build<EchoCmd>().data({std::vector<std::string>{"AAAAAA","BBBBBB"}}));
 			add_to_vector(build<MotorPwmCmd>().left_motor_pwm(80.0).right_motor_pwm(80.0));
+			add_to_vector(build<ReadEncodersCmd>().n(1));
+			add_to_vector(build<ReadEncodersCmd>().n(1));
+			add_to_vector(build<ReadEncodersCmd>().n(1));
+			add_to_vector(build<ReadEncodersCmd>().n(1));
 			add_to_vector(build<ReadEncodersCmd>().n(1));
 			add_to_vector(build<ReadEncodersCmd>().n(1));
 			add_to_vector(build<ReadEncodersCmd>().n(1));
