@@ -41,17 +41,22 @@ include (GNUInstallDirs)
 
 set(TESTS_DIR  ${CMAKE_CURRENT_LIST_DIR})
 message("TESTS_DIR       ${TESTS_DIR}")
-cmake_path(GET           TESTS_DIR         PARENT_PATH          PKG_DIR)
-cmake_path(APPEND_STRING PKG_DIR           "/src"               OUTPUT_VARIABLE PKG_SRC_DIR)
-cmake_path(GET           PKG_DIR           PARENT_PATH          WS_SRC_DIR)
-cmake_path(GET           WS_SRC_DIR        PARENT_PATH          WS_DIR)
-cmake_path(APPEND_STRING PKG_SRC_DIR       "/bridge_lib"        OUTPUT_VARIABLE BRIDGE_LIB_DIR )
-cmake_path(APPEND_STRING PKG_SRC_DIR       "/fbcontrol"         OUTPUT_VARIABLE FBCONTROL_LIB_DIR )
-cmake_path(APPEND_STRING PKG_DIR           "/jsoncons/include"  OUTPUT_VARIABLE JSON_LIB_DIR )
-cmake_path(APPEND_STRING TESTS_DIR         "/common"            OUTPUT_VARIABLE TESTS_COMMON_DIR)
-cmake_path(APPEND_STRING WS_DIR            "install"            OUTPUT_VARIABLE WS_INSTALL_DIR)
-cmake_path(APPEND_STRING WS_DIR            "build"              OUTPUT_VARIABLE WS_BUILD_DIR)
-cmake_path(APPEND_STRING WS_DIR            "install/sample_interfaces/include/sample_interfaces" OUTPUT_VARIABLE SAMPLE_INTERFACES_INCLUDE_DIR)
+cmake_path(GET           TESTS_DIR           PARENT_PATH          PKG_DIR)
+cmake_path(APPEND_STRING PKG_DIR             "/src"               OUTPUT_VARIABLE PKG_SRC_DIR)
+cmake_path(GET           PKG_DIR             PARENT_PATH          WS_SRC_DIR)
+cmake_path(GET           WS_SRC_DIR          PARENT_PATH          WS_DIR)
+cmake_path(APPEND_STRING PKG_SRC_DIR         "/bridge_lib"        OUTPUT_VARIABLE BRIDGE_LIB_DIR )
+cmake_path(APPEND_STRING PKG_SRC_DIR         "/fbcontrol"         OUTPUT_VARIABLE FBCONTROL_LIB_DIR )
+cmake_path(APPEND_STRING PKG_DIR             "/jsoncons/include"  OUTPUT_VARIABLE JSON_LIB_DIR )
+cmake_path(APPEND_STRING TESTS_DIR           "/common"            OUTPUT_VARIABLE TESTS_COMMON_DIR)
+cmake_path(APPEND_STRING WS_DIR              "install"            OUTPUT_VARIABLE WS_INSTALL_DIR)
+cmake_path(APPEND_STRING WS_DIR              "build"              OUTPUT_VARIABLE WS_BUILD_DIR)
+cmake_path(APPEND_STRING WS_DIR              "install/sample_interfaces/include/sample_interfaces" OUTPUT_VARIABLE SAMPLE_INTERFACES_INCLUDE_DIR)
+
+cmake_path(GET           WS_DIR              PARENT_PATH          ROBOT_DIR)
+cmake_path(APPEND_STRING ROBOT_DIR           "/pico_firmware"      OUTPUT_VARIABLE FIRMWARE_DIR)
+cmake_path(APPEND_STRING FIRMWARE_DIR        "/src"                OUTPUT_VARIABLE FIRMWARE_SRC_DIR)
+cmake_path(APPEND_STRING FIRMWARE_SRC_DIR    "/common"             OUTPUT_VARIABLE FIRMWARE_COMMON_DIR)
 
 set(TESTS_INCLUDE_DIRS  
 	${PKG_SRC_DIR} 
@@ -60,6 +65,7 @@ set(TESTS_INCLUDE_DIRS
 	${JSON_LIB_DIR}
 	${TESTS_COMMON_DIR} 
 	${SAMPLE_INTERFACES_INCLUDE_DIR}
+	${FIRMWARE_COMMON_DIR}
 	/opt/ros/iron/include/rclcpp
 	/opt/ros/iron/include/rcl
 	/opt/ros/iron/include/rcutils
@@ -70,14 +76,18 @@ set(TESTS_INCLUDE_DIRS
 message("Project Name                      ${CMAKE_PROJECT_NAME}")
 message("Build Type                        ${CMAKE_BUILD_TYPE}")
 message("CMAKE_CXX_STANDARD                ${CMAKE_CXX_STANDARD}")
-message("TESTS_DIR          ${TESTS_DIR}")
-message("PKG_DIR            ${PKG_DIR}")
-message("PKG_SRC_DIR        ${PKG_SRC_DIR}")
-message("WS_SRC_DIR         ${WS_SRC_DIR}")
-message("BRIDGE_LIB_DIR     ${BRIDGE_LIB_DIR}")
-message("JSON_LIB_DIR       ${JSON_LIB_DIR}")
-message("TESTS_COMMON_DIR   ${TESTS_COMMON_DIR}")
-message("TESTS_INCLUDE_DIRS ${TESTS_INCLUDE_DIRS}")
+message("TESTS_DIR               ${TESTS_DIR}")
+message("PKG_DIR                 ${PKG_DIR}")
+message("PKG_SRC_DIR             ${PKG_SRC_DIR}")
+message("WS_SRC_DIR              ${WS_SRC_DIR}")
+message("BRIDGE_LIB_DIR          ${BRIDGE_LIB_DIR}")
+message("JSON_LIB_DIR            ${JSON_LIB_DIR}")
+message("TESTS_COMMON_DIR        ${TESTS_COMMON_DIR}")
+message("TESTS_INCLUDE_DIRS      ${TESTS_INCLUDE_DIRS}")
+message("ROBOT_DIR               ${ROBOT_DIR}")
+message("FIRMWARE_DIR            ${FIRMWARE_DIR}")
+message("FIRMWARE_SRC_DIR        ${FIRMWARE_SRC_DIR}")
+message("FIRMWARE_COMMON_DIR     ${FIRMWARE_COMMON_DIR}")
 
 include(CTest) 
 enable_testing()
