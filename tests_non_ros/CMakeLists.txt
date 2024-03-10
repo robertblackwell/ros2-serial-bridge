@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 
-project(robot_linux_tests VERSION 0.1.0 LANGUAGES CXX C)
+project(robot_linux_tests CXX C)
 find_package(Threads REQUIRED)
 find_program(BASH_PROG bash)
 
