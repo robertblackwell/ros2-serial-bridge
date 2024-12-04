@@ -69,17 +69,17 @@ int main()
             std::string buffer{};
             while(true) {
                 char ch;
-               size_t n = read(fd, &ch, 1);
-               if(n != 1) {
+                size_t n = read(fd, &ch, 1);
+                if(n != 1) {
                    break;
-               } else if(ch == '\r') {
+                } else if(ch == '\r') {
                    ;
-               } else if(ch == '\n') {
+                } else if(ch == '\n') {
                    buffer.append(1, ch);
                    break;
-               } else {
+                } else {
                    buffer.append(1, ch);
-               }
+                }
 
             }
             // Read a single byte of data from the serial port.

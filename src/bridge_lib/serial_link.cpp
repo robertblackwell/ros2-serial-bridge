@@ -107,7 +107,7 @@ void ros2_bridge::SerialLink::run()
     }
 }
 /**
- * The next 2 functins need a serious cleanup - maybe present the logic as nested FSM
+ * The next 2 functions need a serious cleanup - maybe present the logic as nested FSM
 */
 void ros2_bridge::SerialLink::try_write() 
 {

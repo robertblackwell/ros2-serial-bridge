@@ -15,7 +15,7 @@ namespace ros2_bridge {
     class SerialLink {
     public:
     typedef std::function<void(IoBuffer::UPtr)>  OnRecvCallback;
-    typedef std::unique_ptr<SerialLink>         UPtr; 
+    typedef std::unique_ptr<SerialLink>          UPtr; 
         /**
          * This file descriptor fd, should have been openned and all termios and fctnl settings applied
          * before calling this constructor.
