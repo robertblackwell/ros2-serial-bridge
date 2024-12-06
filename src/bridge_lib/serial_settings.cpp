@@ -36,7 +36,9 @@ std::vector<std::string> list_serial_devices(std::string dir = "/dev")
 int open_serial(std::string path)
 {
     int fd = open(path.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK /*same as O_NDELAY*/);
-    CHECK((fd), std::format("openning serial port path:{} ", path))
+    if(fd < 0) {
+        throw std::runtime_error(std::format("failed opening {}", path));
+    }
     if(! isatty(fd)) {
         throw std::runtime_error(std::format("isatty failed path:[{}]", path));
     }

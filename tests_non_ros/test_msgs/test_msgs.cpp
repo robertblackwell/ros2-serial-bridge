@@ -9,7 +9,7 @@
 #include "jsoncons/json.hpp"
 #include "jsoncons_ext/jsonpath/jsonpath.hpp"
 
-#include "bridge_lib/msgs.h"
+#include "ros2-serial-bridge/src/non_ros_messages/msgs.h"
 #include "bridge_lib/iobuffer.h"
 void test_01()
 {

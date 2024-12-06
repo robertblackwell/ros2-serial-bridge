@@ -6,6 +6,7 @@
 #include <queue>
 #include <cstdio>
 #include <cerrno>
+#include <cstring>
 #include <condition_variable>
 #include <format>
 #include <functional>
@@ -24,7 +25,7 @@ inline int fd_set_non_blocking(int fd)
     int fres = fcntl(fd, F_SETFL, modFlags2);
     if( fres < 0 ){
         int saved_errno = errno;
-        throw std::runtime_error(std::format("fd_set_non_blocking failed errno: {}  strerror: {}", saved_errno, std::strerror(saved_errno)));
+        throw std::runtime_error(std::format("fd_set_non_blocking failed errno: {}  strerror: {}", saved_errno, ::strerror(saved_errno)));
     }
     return fd;
 }

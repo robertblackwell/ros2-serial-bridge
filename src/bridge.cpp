@@ -8,7 +8,7 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "bridge_lib/iobuffer.h"
 #include "bridge_lib/serial_settings.h"
-#include "bridge_lib/msgs.h"
+#include "ros2-serial-bridge/src/non_ros_messages/msgs.h"
 #include "bridge_lib/serial_link.h"
 
 using namespace std::chrono_literals;

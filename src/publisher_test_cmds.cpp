@@ -6,7 +6,7 @@
 #include "std_msgs/msg/string.hpp"
 #include "bridge_lib/iobuffer.h"
 #include "bridge_lib/serial_settings.h"
-#include "bridge_lib/msgs.h"
+#include "ros2-serial-bridge/src/non_ros_messages/msgs.h"
 
 using namespace std::chrono_literals;
 using namespace std::chrono;

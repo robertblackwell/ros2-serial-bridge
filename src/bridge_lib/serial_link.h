@@ -4,14 +4,13 @@
 #include <memory>
 #include <variant>
 #include <sys/select.h>
-#include "rclcpp/rclcpp.hpp"
 #include "queue.h"
 #include "iobuffer.h"
 #include "SerialPort.h"
-#include "msgs.h"
+//#include "msgs.h"
 
 
-namespace ros2_bridge {
+namespace serial_bridge {
     class SerialLink {
     public:
     typedef std::function<void(IoBuffer::UPtr)>  OnRecvCallback;
@@ -22,28 +21,22 @@ namespace ros2_bridge {
          * @param fd
          * @param receive message callback function to run on the thread running the ros2 node
          */
-        SerialLink(
-            int serial_fd,
-            rclcpp::Node*     companion_node_ptr,
-            OnRecvCallback    on_recv_callback
-            );
-
+        explicit SerialLink(int serial_fd);
         ~SerialLink();
 
-        void send_threadsafe(IoBuffer::UPtr buffer_uptr);
-        void run();
-        void start_thread();
+        void send_threadsafe(IoBuffer::UPtr buffer_uptr) const;
+        void run(OnRecvCallback  cb);
 
-        rclcpp::Logger get_logger();
-
+#if 0
+//        rclcpp::Logger get_logger();
         void guard_condition_callback(std::size_t n);
-        void guard_trigger_function();
-
+//        void guard_trigger_function();
+//        rclcpp::Node*                      m_companion_node_ptr;
+//        rclcpp::GuardCondition::SharedPtr  m_guard_condition_sptr;
+#endif
         std::unique_ptr<threadsafe::FdQueue<IoBuffer::UPtr>>      m_output_queue_uptr;
         std::unique_ptr<threadsafe::TriggerQueue<IoBuffer::UPtr>> m_client_queue_uptr;
 
-        rclcpp::Node*                      m_companion_node_ptr;
-        rclcpp::GuardCondition::SharedPtr  m_guard_condition_sptr;
         OnRecvCallback                     m_recv_callback;
         
         int                 m_serial_fd;

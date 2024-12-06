@@ -23,8 +23,8 @@ set(SRC_LIST
 	src/bridge_lib/iobuffer.cpp
 	src/bridge_lib/fd_functions.h
 	src/bridge_lib/fd_functions.cpp
-	src/bridge_lib/msgs.h
-	src/bridge_lib/msgs.cpp
+        src/non_ros_messages/msgs.h
+		src/non_ros_messages/msgs.cpp
 )
 set(INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 set(SRC_DIR     ${CMAKE_CURRENT_LIST_DIR}/src)

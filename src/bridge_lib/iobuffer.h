@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iterator>
 
-namespace ros2_bridge {
+namespace serial_bridge {
 
 /**
  *
@@ -44,19 +44,23 @@ namespace ros2_bridge {
 class IoBuffer
 {
 protected:
-    void*       m_memPtr;      /// points to the start of the memory slab managed by the instance
-    char*       m_cPtr;        /// same as memPtr but makes it easier in debugger to see whats in the buffer
+    union {
+        void *m_memPtr;      /// points to the start of the memory slab managed by the instance
+        char *m_cPtr_xx;        /// same as memPtr but makes it easier in debugger to see whats in the buffer
+    };
+    char *m_cPtr;        /// same as memPtr but makes it easier in debugger to see whats in the buffer
     std::size_t m_start_offset;/// offset from m_memPtr of the first byte of the active data in the buffer
                                /// because of the consume() function this may not always be the
                                /// the same as m_memPtr
     std::size_t m_length;      ///
     std::size_t m_capacity;    /// the capacity of the buffer, the value used for the malloc call
-    std::size_t m_size;        /// size of the currently filled portion of the memory slab
+//    std::size_t m_size;        /// size of the currently filled portion of the memory slab
     void init(std::size_t cap);
     /**
     * returns a pointer to the next available unused position in the buffer
     */
     void* nextAvailable();
+    void set_cstr_terminator();
 
 public:
     using SPtr = std::shared_ptr<IoBuffer>;
@@ -104,6 +108,7 @@ public:
      * @return nullptr if buffer is empty()
      */
     char* get_first_char_ptr();
+    char* c_str();
     /**
      * gets a pointer to the start of the memory slab being managed by the instance
      */
@@ -116,7 +121,7 @@ public:
      * Returns true if the buffer is empty
      * @return bool
      */
-    bool empty();
+    [[nodiscard]] bool empty() const;
     /**
      * capacity of the buffer - max value of size
     */

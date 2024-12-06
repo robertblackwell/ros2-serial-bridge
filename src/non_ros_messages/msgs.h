@@ -1,20 +1,16 @@
 #ifndef H_ros2_bridge_msgs_h
 #define H_ros2_bridge_msgs_h
 #include <string>
-#include "sample_interfaces/msg/cmd_response.hpp"
-#include "sample_interfaces/msg/echo_cmd.hpp"
-#include "sample_interfaces/msg/encoder_status.hpp"
-#include "sample_interfaces/msg/load_test_cmd.hpp"
-#include "sample_interfaces/msg/motor_pwm_cmd.hpp"
-#include "sample_interfaces/msg/motor_rpm_cmd.hpp"
-#include "sample_interfaces/msg/text_msg.hpp"
-#include "sample_interfaces/msg/two_encoder_status.hpp"
-#include "sample_interfaces/msg/read_encoders_cmd.hpp"
+#include <variant>
+#include "msg_struct.h"
 #include "iobuffer.h"
 
+#ifdef ROS2_MSGS
 using namespace sample_interfaces::msg;
-
-
+#else
+using namespace non_ros_msgs;
+#endif
+using namespace serial_bridge;
 /**
  * See the companion package of ROS2 messages called 'sample_interfaces'
  * to understand what message types we area dealing with.
@@ -42,15 +38,15 @@ typedef std::unique_ptr<InputMessage> InputMessage_Uptr;
  * The following 4 type specific deserialize functions are only exposed for testing and experimenting
  * and should not be avoided. 
 */
-bool deserialize(ros2_bridge::IoBuffer& buffer, CmdResponse& response);
-bool deserialize(ros2_bridge::IoBuffer& buffer, EncoderStatus& cmd_response);
-bool deserialize(ros2_bridge::IoBuffer& buffer, TwoEncoderStatus& cmd_response);
-bool deserialize(ros2_bridge::IoBuffer& buffer, TextMsg& cmd_response);
+bool deserialize(IoBuffer& buffer, CmdResponse& response);
+bool deserialize(IoBuffer& buffer, EncoderStatus& cmd_response);
+bool deserialize(IoBuffer& buffer, TwoEncoderStatus& cmd_response);
+bool deserialize(IoBuffer& buffer, TextMsg& cmd_response);
 
 /**
  * Use this general deserialize function 
 */
-bool deserialize(ros2_bridge::IoBuffer& buffer, InputMessage& inmsg);
+bool deserialize(IoBuffer& buffer, InputMessage& inmsg);
 
 /**
  *  * Similarly serialize functions are only required for those messages sent from the Host to the 
@@ -77,16 +73,16 @@ typedef std::unique_ptr<OutputMessage> OutputMessage_Uptr;
  * The following 4 type specific serialize functions are only exposed for testing and experimenting
  * and should not be avoided. 
 */
-void serialize(EchoCmd& cmd, ros2_bridge::IoBuffer& buffer);
-void serialize(LoadTestCmd& cmd, ros2_bridge::IoBuffer& buffer);
-void serialize(MotorPwmCmd& cmd, ros2_bridge::IoBuffer& buffer);
-void serialize(MotorRpmCmd& cmd, ros2_bridge::IoBuffer& buffer);
-void serialize(ReadEncodersCmd& cmd_response, ros2_bridge::IoBuffer& buffer);
+void serialize(EchoCmd& cmd, IoBuffer& buffer);
+void serialize(LoadTestCmd& cmd, IoBuffer& buffer);
+void serialize(MotorPwmCmd& cmd, IoBuffer& buffer);
+void serialize(MotorRpmCmd& cmd, IoBuffer& buffer);
+void serialize(ReadEncodersCmd& cmd_response, IoBuffer& buffer);
 
 /**
  * Use this general serialize function 
 */
-void serialize(OutputMessage& out_msg, ros2_bridge::IoBuffer& buffer);
+void serialize(OutputMessage& out_msg, IoBuffer& buffer);
 
 
 #endif

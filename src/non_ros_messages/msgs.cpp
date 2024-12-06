@@ -1,11 +1,11 @@
 #include <format>
 #include "jsoncons/json.hpp"
 #include "jsoncons_ext/jsonpath/jsonpath.hpp"
-#include "msgs.h"
+#include "ros2-serial-bridge/src/non_ros_messages/msgs.h"
 #include "iobuffer.h"
 
 using namespace sample_interfaces::msg;
-using IoBuffer = ros2_bridge::IoBuffer;
+using IoBuffer = serial_bridge::IoBuffer;
 
 // Message deserializer(IoBuffer& message_buffer)
 // {
@@ -52,7 +52,7 @@ bool deserialize(IoBuffer& buffer, EncoderStatus& status)
         std::string json_string = buffer.to_string().substr(2, std::string::npos);
         jsoncons::json j = jsoncons::json::parse(json_string);
         status.sample_sum = j["ss"].as<int64_t>();
-        status.sample_time_stamp_usecs = j["ts"].as<int64_t>();
+        status.sample_timestamp_usecs = j["ts"].as<int64_t>();
         status.motor_rpm_estimate = j["mr"].as<float>();
         status.direction_pin_state = j["ps"].as<int8_t>();
         return true;
@@ -70,12 +70,12 @@ bool deserialize(IoBuffer& buffer, TwoEncoderStatus& status)
     std::string json_string = buffer.to_string().substr(2,std::string::npos);
     jsoncons::json j = jsoncons::json::parse(json_string);
     status.left.sample_sum = j[0]["ss"].as<int64_t>();
-    status.left.sample_time_stamp_usecs = j[0]["ts"].as<int64_t>();
+    status.left.sample_timestamp_usecs = j[0]["ts"].as<int64_t>();
     status.left.motor_rpm_estimate = j[0]["mr"].as<float>();
     status.left.direction_pin_state = j[0]["ps"].as<int8_t>();
 
     status.right.sample_sum = j[1]["ss"].as<int64_t>();
-    status.right.sample_time_stamp_usecs = j[1]["ts"].as<int64_t>();
+    status.right.sample_timestamp_usecs = j[1]["ts"].as<int64_t>();
     status.right.motor_rpm_estimate = j[1]["mr"].as<float>();
     status.right.direction_pin_state = j[1]["ps"].as<int8_t>();
     return true;
@@ -167,7 +167,7 @@ void serialize(MotorPwmCmd& cmd, IoBuffer& buffer)
 void serialize(MotorRpmCmd& cmd, IoBuffer& buffer)
 {
     buffer.clear();
-    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "rpm %f %f", cmd.left_motor, cmd.right_motor);
+    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "rpm %f %f", cmd.left_motor_rpm, cmd.right_motor_rpm);
     buffer.commit(len);
 }
 void serialize(TextMsg& text_msg, IoBuffer& buffer)
