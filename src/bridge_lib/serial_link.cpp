@@ -6,16 +6,22 @@
 #include <memory>
 #include <sys/select.h>
 #include <poll.h>
+#include <chrono>
+#define RBL_LOG_ENABLED
+#define RBL_LOG_ALLOW_GLOBAL
+#include <rbl/logger.h>
 
 #include "SerialPort.h"
 #include "serial_link.h"
+#include "serial_settings.h"
+
 //#include "msgs.h"
 #define CARRIAGE_RETURN '\r'
 #define LINE_FEED '\n'
 
-serial_bridge::SerialLink::SerialLink(int serial_fd): m_rfds({0}),m_wfds({0}),m_xfds({0}),tv({0,0})
+serial_bridge::SerialLink::SerialLink(): m_rfds({0}),m_wfds({0}),m_xfds({0}),tv({0,0})
 {
-    m_serial_fd = serial_fd;
+    m_serial_fd = -1;
 
     FD_ZERO(&m_rfds);
     FD_ZERO(&m_wfds);
@@ -73,28 +79,48 @@ void serial_bridge::SerialLink::run(OnRecvCallback on_recv_callback)
     m_recv_callback = std::move(on_recv_callback);
     FD_SET(m_serial_fd, &m_rfds);
     FD_SET(m_output_queue_fd, &m_rfds);
-
-    printf("serial_link starting up");
-
     while(true) {
-        // printf("about to select m_nbr_fds: %d serial_fd:%d output_queue_fd: %d \n", m_nbr_fds, m_serial_fd, m_output_queue_fd);
-        retval = select(m_nbr_fds, &m_rfds, &m_wfds, &m_xfds, nullptr);
-        // printf("after select retval %d \n", retval);
-        // printf("FD_SET(serial_fd, m_rfds): %d FD_SET(q_fd, m_rfds): %d\n", FD_ISSET(m_serial_fd, &m_rfds), FD_ISSET(m_output_queue_fd, &m_rfds));
-        if (retval < 0) {
-            int saved_errno = errno;
-            // printf("select returned -1 errno is %d, %s", errno, strerror(errno));
-            throw std::runtime_error(
-                    std::format("select error retval: %d  errno: %d  strerror: %s", retval, saved_errno,
-                                strerror(saved_errno)));
-        } else if (retval == 0) {
-            throw std::runtime_error("select returned zero but no timeout was set");
-        } else {
-            // printf("serial_link::run about to try write\n");
-            this->try_write();
-            if (FD_ISSET(m_serial_fd, &m_rfds)) {
-                this->try_read();
+        try {
+            RBL_LOG_FMT("looking for serial device")
+            auto port_path_list = list_serial_devices();
+            if (port_path_list.size() != 1) {
+                throw std::runtime_error("could not find exactly one suitable serial port path");
             }
+            auto port = port_path_list[0];
+            int fd = open_serial(port);
+            m_serial_fd = fd;
+            RBL_LOG_FMT("succeeded in openning %s ", port.c_str())
+            apply_default_settings(fd);
+
+            while (true) {
+                // printf("about to select m_nbr_fds: %d serial_fd:%d output_queue_fd: %d \n", m_nbr_fds, m_serial_fd, m_output_queue_fd);
+                retval = select(m_nbr_fds, &m_rfds, &m_wfds, &m_xfds, nullptr);
+                // printf("after select retval %d \n", retval);
+                // printf("FD_SET(serial_fd, m_rfds): %d FD_SET(q_fd, m_rfds): %d\n", FD_ISSET(m_serial_fd, &m_rfds), FD_ISSET(m_output_queue_fd, &m_rfds));
+                if (retval < 0) {
+                    int saved_errno = errno;
+                    // printf("select returned -1 errno is %d, %s", errno, strerror(errno));
+                    throw std::runtime_error(
+                            std::format("select error retval: %d  errno: %d  strerror: %s", retval, saved_errno,
+                                        strerror(saved_errno)));
+                } else if (retval == 0) {
+                    throw std::runtime_error("select returned zero but no timeout was set");
+                } else {
+                    // printf("serial_link::run about to try write\n");
+                    this->try_write();
+                    if (FD_ISSET(m_serial_fd, &m_rfds)) {
+                        this->try_read();
+                    }
+                }
+            }
+        } catch (std:: exception& e) {
+            RBL_LOG_FMT("serial_link caught an exception  what: %s\n", e.what());
+            if (m_serial_fd != -1) {
+                close(m_serial_fd);
+            }
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(2000ms);
+            continue;
         }
     }
 }
@@ -176,6 +202,7 @@ void serial_bridge::SerialLink::try_read()
                     // RCLCPP_WARN(this->get_logger(), "We got a packet of no bytes ");
                 } else {
                     // printf("try_read got a message %s\n", m_input_message_buffer_uptr->to_string().c_str());
+                    throw std::runtime_error("just testing");
                     m_recv_callback(std::move(m_input_message_buffer_uptr));
 //                    m_input_message_buffer_uptr = nullptr;
 //                    std::size_t qn = m_client_queue_uptr->put(std::move(m_input_message_buffer_uptr));

@@ -27,7 +27,7 @@ std::vector<std::string> list_serial_devices(std::string dir = "/dev")
     std::vector<std::string> result{};
     for(const auto & entry : fs::directory_iterator(dir)) {
         auto p = entry.path().generic_string();
-        if(p.find("ttyACM") != p.npos) { //} || p.find("ttyUSB")) {
+        if(p.find("ttyACM") != std::string::npos) { //} || p.find("ttyUSB")) {
             result.push_back(p);
         }
     }

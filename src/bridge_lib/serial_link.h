@@ -16,15 +16,21 @@ namespace serial_bridge {
     typedef std::function<void(IoBuffer::UPtr)>  OnRecvCallback;
     typedef std::unique_ptr<SerialLink>          UPtr; 
         /**
-         * This file descriptor fd, should have been openned and all termios and fctnl settings applied
-         * before calling this constructor.
-         * @param fd
-         * @param receive message callback function to run on the thread running the ros2 node
+         * The constructor only initializes a few member variables.
+         * all the action takes place in run()
          */
-        explicit SerialLink(int serial_fd);
+        explicit SerialLink();
         ~SerialLink();
 
         void send_threadsafe(IoBuffer::UPtr buffer_uptr) const;
+        /**
+         * SerialLink::run() tries to open the first device it finds where the path starts with
+         * /dev/ttyACM and is a tty
+         *
+         * There after it reads from and writes to that device.
+         *
+         * If any that fails it sleeps for a second and then tries again forever.
+         */
         void run(OnRecvCallback  cb);
 
 #if 0
