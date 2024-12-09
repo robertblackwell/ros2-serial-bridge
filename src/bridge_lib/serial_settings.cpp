@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <format>
+#include "std_format.h"
 #include <filesystem>
 namespace fs = std::filesystem;
 
@@ -37,10 +37,10 @@ int open_serial(std::string path)
 {
     int fd = open(path.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK /*same as O_NDELAY*/);
     if(fd < 0) {
-        throw std::runtime_error(std::format("failed opening {}", path));
+        throw std::runtime_error(std_format("failed opening %s", path.c_str()));
     }
     if(! isatty(fd)) {
-        throw std::runtime_error(std::format("isatty failed path:[{}]", path));
+        throw std::runtime_error(std_format("isatty failed path:[%s]", path.c_str()));
     }
     return fd;
 }

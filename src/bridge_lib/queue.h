@@ -8,7 +8,7 @@
 #include <cerrno>
 #include <cstring>
 #include <condition_variable>
-#include <format>
+#include <std_format.h>
 #include <functional>
 #include <type_traits>
 #include <sys/eventfd.h>
@@ -25,7 +25,7 @@ inline int fd_set_non_blocking(int fd)
     int fres = fcntl(fd, F_SETFL, modFlags2);
     if( fres < 0 ){
         int saved_errno = errno;
-        throw std::runtime_error(std::format("fd_set_non_blocking failed errno: {}  strerror: {}", saved_errno, ::strerror(saved_errno)));
+        throw std::runtime_error(std_format("fd_set_non_blocking failed errno: %d  strerror: %s", saved_errno, ::strerror(saved_errno)));
     }
     return fd;
 }
@@ -160,7 +160,7 @@ inline int fd_set_non_blocking(int fd)
             int n = write(this->write_fileno(), &v, sizeof(v));
             int saved_errno = errno;
             if(n < 0 && saved_errno != EAGAIN) {
-                throw std::runtime_error(std::format("put failed n: {} errno {}", n, saved_errno));
+                throw std::runtime_error(std_format("put failed n: %d errno %s", n, saved_errno));
             }
 #endif
         }

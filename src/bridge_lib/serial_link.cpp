@@ -1,21 +1,16 @@
 #include <utility>
-#include <cstdio>
 #include <cerrno>
-#include <format>
+#include "std_format.h"
 #include <functional>
 #include <memory>
 #include <sys/select.h>
-#include <poll.h>
 #include <chrono>
 #define RBL_LOG_ENABLED
 #define RBL_LOG_ALLOW_GLOBAL
 #include <rbl/logger.h>
-
-#include "SerialPort.h"
 #include "serial_link.h"
 #include "serial_settings.h"
 
-//#include "msgs.h"
 #define CARRIAGE_RETURN '\r'
 #define LINE_FEED '\n'
 
@@ -101,7 +96,7 @@ void serial_bridge::SerialLink::run(OnRecvCallback on_recv_callback)
                     int saved_errno = errno;
                     // printf("select returned -1 errno is %d, %s", errno, strerror(errno));
                     throw std::runtime_error(
-                            std::format("select error retval: %d  errno: %d  strerror: %s", retval, saved_errno,
+                            std_format("select error retval: %d  errno: %d  strerror: %s", retval, saved_errno,
                                         strerror(saved_errno)));
                 } else if (retval == 0) {
                     throw std::runtime_error("select returned zero but no timeout was set");
@@ -150,11 +145,11 @@ void serial_bridge::SerialLink::try_write()
         } else if (n > 0) {
             m_write_buffer_uptr->consume(n);
         } else if(n == 0) {
-            throw std::runtime_error(std::format("write returned zero errno: %d msg: %s\n", saved_write_errno, strerror(saved_write_errno)));
+            throw std::runtime_error(std_format("write returned zero errno: %d msg: %s\n", saved_write_errno, strerror(saved_write_errno)));
         } else if(saved_write_errno == EAGAIN) {
                 FD_SET(m_serial_fd, &m_wfds);
         } else {
-            throw std::runtime_error(std::format("write returned -1 errno: %d msg: %s\n", saved_write_errno, strerror(saved_write_errno)));
+            throw std::runtime_error(std_format("write returned -1 errno: %d msg: %s\n", saved_write_errno, strerror(saved_write_errno)));
         }
     }
 }
@@ -174,11 +169,11 @@ void serial_bridge::SerialLink::try_read()
         ssize_t n = read(m_serial_fd, m_read_buffer_uptr->space_ptr(), m_read_buffer_uptr->space_len());
         int saved_read_errno = errno;
         if(n == 0) {
-            throw std::runtime_error(std::format("read returned zero errno: %d msg: %s\n", saved_read_errno, strerror(saved_read_errno)));
+            throw std::runtime_error(std_format("read returned zero errno: %d msg: %s\n", saved_read_errno, strerror(saved_read_errno)));
         } else if(n < 0 && saved_read_errno == EAGAIN) {
             ; //no data available to read
         } else if(n < 0) {
-            throw std::runtime_error(std::format("read returned -ve and no EAGAIN  errno: %d msg: %s\n", saved_read_errno, strerror(saved_read_errno)));
+            throw std::runtime_error(std_format("read returned -ve and no EAGAIN  errno: %d msg: %s\n", saved_read_errno, strerror(saved_read_errno)));
         } else {// n > 0 we read some data so commit it
             if(m_read_buffer_uptr->size() + n > m_read_buffer_uptr->capacity()) {
                 throw std::runtime_error("no room in buffer to commit");
