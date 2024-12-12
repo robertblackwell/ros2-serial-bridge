@@ -4,9 +4,9 @@
 #include <thread>
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
-#include "bridge_lib/iobuffer.h"
-#include "bridge_lib/serial_settings.h"
-#include "ros2-serial-bridge/src/non_ros_messages/msgs.h"
+#include "ros2-serial-bridge/bridge_lib/iobuffer.h"
+#include "ros2-serial-bridge/bridge_lib/serial_settings.h"
+#include "ros2-serial-bridge/non_ros_messages/msgs.h"
 
 using namespace std::chrono_literals;
 using namespace std::chrono;
@@ -104,7 +104,7 @@ public:
 	std::vector<OutputMessage> m_output_messages;
 };
 
-#include "bridge_lib/iobuffer.h"
+#include "ros2-serial-bridge/bridge_lib/iobuffer.h"
 int main(int argc, char * argv[])
 {
 	rclcpp::init(argc, argv);

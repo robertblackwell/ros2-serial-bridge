@@ -3,7 +3,7 @@
 ##
 ## this directory exports BRIDGE_library
 ##
-## Note includes 4 files from vendor/src
+## Note includes 4 files from vendor/f710_control_v1
 ##
 set(EXTSRC ${BRIDGE_VENDOR_SRCDIR})
 
@@ -11,7 +11,7 @@ set(BRIDGE_LIBRARY_HEADER_FILES
 		iobuffer.h
 	)
 
-set(BRIDGE_LIBRARY_SOURCE_FILES 
+set(BRIDGE_LIBRARY_SOURCE_FILES
 		iobuffer.cpp
 	)
 

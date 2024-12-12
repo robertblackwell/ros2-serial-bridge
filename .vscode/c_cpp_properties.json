@@ -8,7 +8,7 @@
             },
             "includePath": [
                 // "${workspaceFolder}/include",
-                // "${workspaceFolder}/src",
+                // "${workspaceFolder}/f710_control_v1",
                 // "${workspaceFolder}/**",
                 // "${workspaceFolder}/../../install/sample_interfaces/include/**",
                 // "/opt/ros/iron/include/**"

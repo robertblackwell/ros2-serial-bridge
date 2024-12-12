@@ -12,8 +12,8 @@ add_executable(${TARGET}
 		${BRIDGE_LIB_DIR}/iobuffer.cpp
 		${TESTS_COMMON_DIR}/unittest.h
 		${TESTS_COMMON_DIR}/unittest.c
-		../../src/fbcontrol/value_with_direction.h
-		../../src/fbcontrol/motor_profile.cpp
+        ../../fbcontrol/value_with_direction.h
+        ../../fbcontrol/motor_profile.cpp
 )
 
 target_include_directories(${TARGET}

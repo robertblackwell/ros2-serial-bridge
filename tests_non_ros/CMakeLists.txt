@@ -42,7 +42,7 @@ include (GNUInstallDirs)
 set(TESTS_DIR  ${CMAKE_CURRENT_LIST_DIR})
 message("TESTS_DIR       ${TESTS_DIR}")
 cmake_path(GET           TESTS_DIR           PARENT_PATH          PKG_DIR)
-cmake_path(APPEND_STRING PKG_DIR             "/src"               OUTPUT_VARIABLE PKG_SRC_DIR)
+cmake_path(APPEND_STRING PKG_DIR             "/f710_control_v1"               OUTPUT_VARIABLE PKG_SRC_DIR)
 cmake_path(GET           PKG_DIR             PARENT_PATH          WS_SRC_DIR)
 cmake_path(GET           WS_SRC_DIR          PARENT_PATH          WS_DIR)
 cmake_path(APPEND_STRING PKG_SRC_DIR         "/bridge_lib"        OUTPUT_VARIABLE BRIDGE_LIB_DIR )
@@ -55,7 +55,7 @@ cmake_path(APPEND_STRING WS_DIR              "install/sample_interfaces/include/
 
 cmake_path(GET           WS_DIR              PARENT_PATH          ROBOT_DIR)
 cmake_path(APPEND_STRING ROBOT_DIR           "/pico_firmware"      OUTPUT_VARIABLE FIRMWARE_DIR)
-cmake_path(APPEND_STRING FIRMWARE_DIR        "/src"                OUTPUT_VARIABLE FIRMWARE_SRC_DIR)
+cmake_path(APPEND_STRING FIRMWARE_DIR        "/f710_control_v1"                OUTPUT_VARIABLE FIRMWARE_SRC_DIR)
 cmake_path(APPEND_STRING FIRMWARE_SRC_DIR    "/common"             OUTPUT_VARIABLE FIRMWARE_COMMON_DIR)
 
 set(TESTS_INCLUDE_DIRS  

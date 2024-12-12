@@ -6,10 +6,10 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "geometry_msgs/msg/twist.hpp"
-#include "bridge_lib/iobuffer.h"
-#include "bridge_lib/serial_settings.h"
-#include "ros2-serial-bridge/src/non_ros_messages/msgs.h"
-#include "bridge_lib/serial_link.h"
+#include "ros2-serial-bridge/bridge_lib/iobuffer.h"
+#include "ros2-serial-bridge/bridge_lib/serial_settings.h"
+#include "ros2-serial-bridge/non_ros_messages/msgs.h"
+#include "ros2-serial-bridge/bridge_lib/serial_link.h"
 
 using namespace std::chrono_literals;
 using namespace std::chrono;

@@ -1,11 +1,12 @@
 #include <format>
-#include "jsoncons/json.hpp"
-#include "jsoncons_ext/jsonpath/jsonpath.hpp"
-#include "ros2-serial-bridge/src/non_ros_messages/msgs.h"
-#include "iobuffer.h"
+#include <functional>
+#include <tuple>
+#include <jsoncons/json.hpp>
+#include <jsoncons_ext/jsonpath/jsonpath.hpp>
+#include "msgs.h"
+#include <rbl/iobuffer.h>
 
-using namespace sample_interfaces::msg;
-using IoBuffer = serial_bridge::IoBuffer;
+using IoBuffer = rbl::IoBuffer;
 
 // Message deserializer(IoBuffer& message_buffer)
 // {
@@ -32,6 +33,22 @@ bool test_buffer_prefix(IoBuffer& buffer, std::string prefix)
     // printf("%s  %s\n", test.c_str(), prefix.c_str());
     bool x = (test  == prefix);
     return x;
+}
+bool deserialize(IoBuffer& buffer, FirmwareStartupResponse& cmd_response)
+{
+    if(! test_buffer_prefix(buffer, "1B")) {
+        return false;
+    }
+    cmd_response.text = std::string(buffer.c_str());
+    return true;
+}
+bool deserialize(IoBuffer& buffer, FirmwareRebootCmd& cmd)
+{
+    if(test_buffer_prefix(buffer, "reset") || test_buffer_prefix(buffer, "b")) {
+        return true;
+    }
+    cmd.dummy = std::string(buffer.c_str());
+    return false;
 }
 bool deserialize(IoBuffer& buffer, CmdResponse& cmd_response)
 {
@@ -87,9 +104,17 @@ bool deserialize(IoBuffer& buffer, TextMsg& text_msg)
     return true;
 }
 
-bool deserialize(IoBuffer& buffer, InputMessage& inmsg)
+bool deserialize(IoBuffer& buffer, InputMessageVariant& inmsg)
 {
     std::vector<std::function<bool(IoBuffer&)>> pv = {
+        [&](IoBuffer& buffer){
+            FirmwareStartupResponse msg;
+            if(deserialize(buffer, msg)) {
+                inmsg = msg;
+                return true;
+            }
+            return false;
+        },
         [&](IoBuffer& buffer){
             CmdResponse msg;
             if(deserialize(buffer, msg)) {
@@ -129,10 +154,135 @@ bool deserialize(IoBuffer& buffer, InputMessage& inmsg)
     } 
     return false;
 }
+bool deserialize(IoBuffer& buffer, InputMessageVariantUPtr& inmsg)
+{
+    return deserialize(buffer, *inmsg);
+    // std::vector<std::function<bool(IoBuffer&)>> pv = {
+    //     [&](IoBuffer& buffer){
+    //         FirmwareStartupResponse msg;
+    //         if(deserialize(buffer, msg)) {
+    //             *inmsg = msg;
+    //             return true;
+    //         }
+    //         return false;
+    //     },
+    //     [&](IoBuffer& buffer){
+    //         CmdResponse msg;
+    //         if(deserialize(buffer, msg)) {
+    //             *inmsg = msg;
+    //             return true;
+    //         }
+    //         return false;
+    //     },
+    //     [&](IoBuffer& buffer){
+    //         EncoderStatus msg;
+    //         if(deserialize(buffer, msg)) {
+    //             *inmsg = msg;
+    //             return true;
+    //         }
+    //         return false;
+    //     },
+    //     [&](IoBuffer& buffer){
+    //         TwoEncoderStatus msg;
+    //         if(deserialize(buffer, msg)) {
+    //             *inmsg = msg;
+    //             return true;
+    //         }
+    //         return false;
+    //     },
+    //     [&](IoBuffer& buffer){
+    //         TextMsg msg;
+    //         if(deserialize(buffer, msg)) {
+    //             *inmsg = msg;
+    //             return true;
+    //         }
+    //         return false;
+    //     },                
+    // };
+    // for(auto f : pv) {
+    //     if(f(buffer))
+    //         return true;
+    // } 
+    // return false;
+}
+bool deserialize(IoBuffer& buffer, InputMessageUPtrVariant& inmsg)
+{
+    std::vector<std::function<bool(IoBuffer&)>> pv = {
+            [&](IoBuffer& buffer){
+                FirmwareStartupResponse::UPtr msg = std::make_unique<FirmwareStartupResponse>();
+                if(deserialize(buffer, *msg)) {
+                    inmsg = InputMessageUPtrVariant{std::move(msg)};
+                    return true;
+                }
+                return false;
+            },        
+            [&](IoBuffer& buffer){
+                CmdResponse::UPtr msg = std::make_unique<CmdResponse>();
+                if(deserialize(buffer, *msg)) {
+                    inmsg = InputMessageUPtrVariant{std::move(msg)};
+                    return true;
+                }
+                return false;
+            },
+            [&](IoBuffer& buffer){
+                EncoderStatus::UPtr msg = std::make_unique<EncoderStatus>();
+                if(deserialize(buffer, *msg)) {
+                    inmsg = InputMessageUPtrVariant{std::move(msg)};
+                    return true;
+                }
+                return false;
+            },
+            [&](IoBuffer& buffer){
+                TwoEncoderStatus::UPtr msg = std::make_unique<TwoEncoderStatus>();
+                if(deserialize(buffer, *msg)) {
+                    inmsg = InputMessageUPtrVariant{std::move(msg)};
+                    return true;
+                }
+                return false;
+            },
+            [&](IoBuffer& buffer){
+                TextMsg::UPtr msg = std::make_unique<TextMsg>();
+                if(deserialize(buffer, *msg)) {
+                    inmsg = InputMessageUPtrVariant{std::move(msg)};
+                    return true;
+                }
+                return false;
+            },
+    };
+    for(auto f : pv) {
+        if(f(buffer))
+            return true;
+    }
+    return false;
+}
+
+std::unique_ptr<InputMessageUPtrVariant> deserialize(IoBuffer& buffer)
+{
+    auto imsgupt = std::make_unique<InputMessageUPtrVariant>();
+    auto flag = deserialize(buffer, *imsgupt);
+    if(!flag) {
+        return nullptr;
+    }
+    return imsgupt;
+}
 
 /**
  * Serialize functions
 */
+void serialize(const FirmwareStartupResponse& response, IoBuffer& buffer)
+{
+    buffer.clear();
+    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "1B %s", response.text.c_str());
+    buffer.commit(len);
+
+}
+void serialize(const FirmwareRebootCmd& cmd, IoBuffer& buffer)
+{
+    buffer.clear();
+    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "reset %s", cmd.dummy.c_str());
+    buffer.commit(len);
+
+}
 void serialize(const CmdResponse& response, IoBuffer& buffer)
 {
     buffer.clear();
@@ -144,7 +294,7 @@ void serialize(EchoCmd& cmd, IoBuffer& buffer)
 {
     buffer.clear();
     std::string result{};
-    for(auto s : cmd.data) {
+    for(auto s : cmd.text) {
         result +=  " " + s;
     }
     // auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "echo %s\n", result.c_str());
@@ -155,7 +305,7 @@ void serialize(EchoCmd& cmd, IoBuffer& buffer)
 void serialize(LoadTestCmd& cmd, IoBuffer& buffer)
 {
     buffer.clear();
-    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "load %d %d %d", cmd.count, cmd.msg_length, cmd.msgs_per_seecond);
+    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "load %d %d %d", cmd.count, cmd.msg_length, cmd.msgs_per_second);
     buffer.commit(len);
 }
 void serialize(MotorPwmCmd& cmd, IoBuffer& buffer)
@@ -179,11 +329,11 @@ void serialize(TextMsg& text_msg, IoBuffer& buffer)
 void serialize(ReadEncodersCmd& cmd, IoBuffer& buffer)
 {
     buffer.clear();
-    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "e %d", cmd.n);
+    auto len = snprintf((char*)buffer.space_ptr(), buffer.space_len(), "e %d", cmd.left_or_right);
     buffer.commit(len);
 }
 
-void serialize(OutputMessage& msg, IoBuffer& buffer)
+void serialize(OutputMessageVariant& msg, IoBuffer& buffer)
 {
     if(auto m_ptr = std::get_if<EchoCmd>(&msg)) {
         serialize(*m_ptr, buffer);
