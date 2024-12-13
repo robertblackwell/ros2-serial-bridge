@@ -50,6 +50,7 @@ namespace serial_bridge {
         fd_set              m_xfds;
         int                 m_nbr_fds;
         struct timeval      tv;
+        bool                m_read_eagained_flag;
 
         IoBuffer::UPtr      m_write_buffer_uptr;        //holds the ddata bytes that are currenty being written
         IoBuffer::UPtr      m_read_buffer_uptr;         // holds the databytes that have been read but not processed into messages

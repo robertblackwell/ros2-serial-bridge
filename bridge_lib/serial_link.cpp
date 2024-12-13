@@ -14,7 +14,7 @@
 #define CARRIAGE_RETURN '\r'
 #define LINE_FEED '\n'
 
-serial_bridge::SerialLink::SerialLink(): m_rfds({0}),m_wfds({0}),m_xfds({0}),tv({0,0})
+serial_bridge::SerialLink::SerialLink(): m_rfds({0}), m_wfds({0}),m_xfds({0}),tv({0,0}),m_read_eagained_flag(false)
 {
     m_serial_fd = -1;
 
@@ -84,14 +84,16 @@ void serial_bridge::SerialLink::run(OnRecvCallback on_recv_callback)
             auto port = port_path_list[0];
             int fd = open_serial(port);
             m_serial_fd = fd;
+            m_read_eagained_flag = false;
             RBL_LOG_FMT("succeeded in openning %s ", port.c_str())
             apply_default_settings(fd);
 
             while (true) {
-                // printf("about to select m_nbr_fds: %d serial_fd:%d output_queue_fd: %d \n", m_nbr_fds, m_serial_fd, m_output_queue_fd);
+                FD_SET(m_serial_fd, &m_rfds);
+                FD_SET(m_output_queue_fd, &m_rfds);
+                m_nbr_fds = std::max(m_serial_fd, m_output_queue_fd) + 1;
                 retval = select(m_nbr_fds, &m_rfds, &m_wfds, &m_xfds, nullptr);
-                // printf("after select retval %d \n", retval);
-                // printf("FD_SET(serial_fd, m_rfds): %d FD_SET(q_fd, m_rfds): %d\n", FD_ISSET(m_serial_fd, &m_rfds), FD_ISSET(m_output_queue_fd, &m_rfds));
+
                 if (retval < 0) {
                     int saved_errno = errno;
                     // printf("select returned -1 errno is %d, %s", errno, strerror(errno));
@@ -102,8 +104,12 @@ void serial_bridge::SerialLink::run(OnRecvCallback on_recv_callback)
                     throw std::runtime_error("select returned zero but no timeout was set");
                 } else {
                     // printf("serial_link::run about to try write\n");
+//                    auto x = FD_ISSET(m_output_queue_fd, &m_rfds);
                     this->try_write();
                     if (FD_ISSET(m_serial_fd, &m_rfds)) {
+                        this->try_read();
+                    }
+                    if (!m_read_eagained_flag) {
                         this->try_read();
                     }
                 }
@@ -171,7 +177,7 @@ void serial_bridge::SerialLink::try_read()
         if(n == 0) {
             throw std::runtime_error(std_format("read returned zero errno: %d msg: %s\n", saved_read_errno, strerror(saved_read_errno)));
         } else if(n < 0 && saved_read_errno == EAGAIN) {
-            ; //no data available to read
+            m_read_eagained_flag = true;
         } else if(n < 0) {
             throw std::runtime_error(std_format("read returned -ve and no EAGAIN  errno: %d msg: %s\n", saved_read_errno, strerror(saved_read_errno)));
         } else {// n > 0 we read some data so commit it
@@ -196,10 +202,8 @@ void serial_bridge::SerialLink::try_read()
                 if(m_input_message_buffer_uptr->empty()) {
                     // RCLCPP_WARN(this->get_logger(), "We got a packet of no bytes ");
                 } else {
-                    // printf("try_read got a message %s\n", m_input_message_buffer_uptr->to_string().c_str());
-                    throw std::runtime_error("just testing");
                     m_recv_callback(std::move(m_input_message_buffer_uptr));
-//                    m_input_message_buffer_uptr = nullptr;
+                    m_input_message_buffer_uptr = nullptr;
 //                    std::size_t qn = m_client_queue_uptr->put(std::move(m_input_message_buffer_uptr));
                     m_input_message_buffer_uptr = std::make_unique<IoBuffer>();
                 }

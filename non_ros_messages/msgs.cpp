@@ -69,7 +69,7 @@ bool deserialize(IoBuffer& buffer, EncoderStatus& status)
         std::string json_string = buffer.to_string().substr(2, std::string::npos);
         jsoncons::json j = jsoncons::json::parse(json_string);
         status.sample_sum = j["ss"].as<int64_t>();
-        status.sample_timestamp_usecs = j["ts"].as<int64_t>();
+//        status.sample_timestamp_usecs = j["ts"].as<int64_t>();
         status.motor_rpm_estimate = j["mr"].as<float>();
         status.direction_pin_state = j["ps"].as<int8_t>();
         return true;
@@ -83,16 +83,16 @@ bool deserialize(IoBuffer& buffer, TwoEncoderStatus& status)
     if(! test_buffer_prefix(buffer, "1J")) {
         return false;
     }
-    printf("deserialize TwoEncoderStatus %s\n", buffer.to_string().c_str());
+//    printf("deserialize TwoEncoderStatus %s\n", buffer.to_string().c_str());
     std::string json_string = buffer.to_string().substr(2,std::string::npos);
     jsoncons::json j = jsoncons::json::parse(json_string);
     status.left.sample_sum = j[0]["ss"].as<int64_t>();
-    status.left.sample_timestamp_usecs = j[0]["ts"].as<int64_t>();
+//    status.left.sample_timestamp_usecs = j[0]["ts"].as<int64_t>();
     status.left.motor_rpm_estimate = j[0]["mr"].as<float>();
     status.left.direction_pin_state = j[0]["ps"].as<int8_t>();
 
     status.right.sample_sum = j[1]["ss"].as<int64_t>();
-    status.right.sample_timestamp_usecs = j[1]["ts"].as<int64_t>();
+//    status.right.sample_timestamp_usecs = j[1]["ts"].as<int64_t>();
     status.right.motor_rpm_estimate = j[1]["mr"].as<float>();
     status.right.direction_pin_state = j[1]["ps"].as<int8_t>();
     return true;
