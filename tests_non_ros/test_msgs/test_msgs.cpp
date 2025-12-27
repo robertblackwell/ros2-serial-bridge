@@ -6,20 +6,25 @@
 #include <vector>
 #include <optional>
 #include <format>
-#include "jsoncons/json.hpp"
-#include "jsoncons_ext/jsonpath/jsonpath.hpp"
+#include <jsoncons/json.hpp>
+#include <jsoncons_ext/jsonpath/jsonpath.hpp>
 
-#include "bridge_lib/msgs.h"
-#include "bridge_lib/iobuffer.h"
+#include <msgs/msgs.h>
+#include <iobuffer.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
 void test_01()
 {
     printf("Hello this is test_msgs\n");
-	ros2_bridge::IoBuffer buffer{};
+	rbl::IoBuffer buffer{};
 	buffer.append(std::string{R"({"ss":19283746, "ts":987654321, "mr":6708.43, "ps":"F"})"});
 	printf("json string is %s\n", buffer.to_string().c_str());
     std::string json_string = buffer.to_string();
     jsoncons::json j = jsoncons::json::parse(json_string);
-    sample_interfaces::msg::EncoderStatus status;
+    EncoderStatus status{};
     status.sample_sum = j["ss"].as<int64_t>();
     status.sample_time_stamp_usecs = j["ts"].as<int64_t>();
     status.motor_rpm_estimate = j["mr"].as<float>();
@@ -30,25 +35,23 @@ void test_01()
 void test_02()
 {
     printf("Hello this is test_msgs\n");
-	ros2_bridge::IoBuffer buffer{};
+	rbl::IoBuffer buffer{};
 	buffer.append(std::string{R"([{"ss":19283746, "ts":987654321, "mr":6708.43, "ps":"F"}, {"ss":77777777, "ts":129283746, "mr":5767.43, "ps":120}])"});
 	printf("json string is %s\n", buffer.to_string().c_str());
     std::string json_string = buffer.to_string();
     jsoncons::json j = jsoncons::json::parse(json_string);
-    sample_interfaces::msg::TwoEncoderStatus status;
-    status.left.sample_sum              = j[0]["ss"].as<int64_t>();
-    status.left.sample_time_stamp_usecs = j[0]["ts"].as<int64_t>();
-    status.left.motor_rpm_estimate      = j[0]["mr"].as<float>();
-    status.right.sample_sum              = j[1]["ss"].as<int64_t>();
-    status.right.sample_time_stamp_usecs = j[1]["ts"].as<int64_t>();
-    status.right.motor_rpm_estimate      = j[1]["mr"].as<float>();
+    TwoEncoderStatus status{};
+    status.left_sample_sum              = j[0]["ss"].as<int64_t>();
+    status.left_sample_time_stamp_usecs = j[0]["ts"].as<int64_t>();
+    status.left_motor_rpm_estimate      = j[0]["mr"].as<float>();
+    status.right_sample_sum              = j[1]["ss"].as<int64_t>();
+    status.right_sample_time_stamp_usecs = j[1]["ts"].as<int64_t>();
+    status.right_motor_rpm_estimate      = j[1]["mr"].as<float>();
 
     std::string x0 = j[0]["ps"].as<std::string>();
     std::string x1 = j[1]["ps"].as<std::string>();
 
 }
-using namespace sample_interfaces::msg;
-using namespace ros2_bridge;
 
 void f(CmdResponse& resp)
 {
@@ -75,7 +78,7 @@ struct overloadf
 };
 void test_03()
 {
-	ros2_bridge::IoBuffer buffer{};
+	rbl::IoBuffer buffer{};
 	buffer.append(std::string{R"({"ss":19283746, "ts":987654321, "mr":6708.43, "ps":"F"})"});
     EncoderStatus status{};
     deserialize(buffer, status);
@@ -85,7 +88,7 @@ void test_03()
 }
 void test_04()
 {
-	ros2_bridge::IoBuffer buffer{};
+	rbl::IoBuffer buffer{};
 	buffer.append(std::string{R"(1K[{"ss":19283746, "ts":987654321, "mr":6708.43, "ps":"F"}, {"ss":77777777, "ts":129283746, "mr":5767.43, "ps":120}])"});
     EncoderStatus status{};
     // deserialize(buffer, status);
@@ -111,19 +114,22 @@ void test_04()
 void test_05()
 {
     auto make_iobuffer = [](OutputMessage msg) {
-        IoBuffer::UPtr buf_uptr = std::make_unique<IoBuffer>();
+        rbl::IoBuffer::UPtr buf_uptr = std::make_unique<rbl::IoBuffer>();
         serialize(msg, *buf_uptr);
         return buf_uptr;
     };
 
-    auto echo = EchoCmd();
+    auto echo = EchoCmd{};
     echo.data = std::vector<std::string>({std::string("1111"),std::string("2222")});
     for(auto &s : echo.data) {
         const char* tmp = s.c_str();
         printf("%s\n", tmp);
     }
-    auto echo2 = make_iobuffer(sample_interfaces::build<EchoCmd>().data({std::vector<std::string>{"AAAAAA","BBBBBB"}}));
-    printf("We r done");
+    EchoCmd echo_cmd{}; echo_cmd.data = std::vector<std::string>({std::string("AAAAAA"),std::string("BBBBBB")});
+
+    auto echo2 = make_iobuffer(echo_cmd);
+
+    printf("We r done %s\n", echo2->c_str());
 }
 int main(int argc, char * argv[])
 {
@@ -136,3 +142,4 @@ int main(int argc, char * argv[])
 
 	return 0;
 }
+#pragma GCC diagnostic push

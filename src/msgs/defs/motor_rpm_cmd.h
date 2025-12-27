@@ -1,0 +1,8 @@
+//
+// Created by robert on 12/27/25.
+//
+
+#ifndef CPP_SERIAL_BRIDGE_MOTOR_RPM_CMD_H
+#define CPP_SERIAL_BRIDGE_MOTOR_RPM_CMD_H
+
+#endif //CPP_SERIAL_BRIDGE_MOTOR_RPM_CMD_H

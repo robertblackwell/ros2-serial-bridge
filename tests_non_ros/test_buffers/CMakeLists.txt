@@ -8,12 +8,12 @@ set( CMAKE_VERBOSE_MAKEFILE on )
 set(TARGET test_buffers)
 add_executable(${TARGET}
 		test_buffer_main.cpp
-		${BRIDGE_LIB_DIR}/iobuffer.h
-		${BRIDGE_LIB_DIR}/iobuffer.cpp
-		${TESTS_COMMON_DIR}/unittest.h
-		${TESTS_COMMON_DIR}/unittest.c
-		../../src/fbcontrol/value_with_direction.h
-		../../src/fbcontrol/motor_profile.cpp
+	${PKG_DIR}/rbl_cpp/src/iobuffer.h 
+	${PKG_DIR}/rbl_cpp/src/iobuffer.cpp
+		${PKG_DIR}/rbl_cpp/src/unittest.h
+		${PKG_DIR}/rbl_cpp/src/unittest.c
+#		../../src/fbcontrol/value_with_direction.h
+#		../../src/fbcontrol/motor_profile.cpp
 )
 
 target_include_directories(${TARGET}

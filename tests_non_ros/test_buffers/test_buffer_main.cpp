@@ -6,8 +6,10 @@
 #include <unittest.h>
 #include <iobuffer.h>
 
-using namespace ros2_bridge;
-
+using namespace rbl;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-variable"
 int test_simple()
 {
     printf("XXXXXXXXXXXHello world from buffer test \n");
@@ -293,7 +295,7 @@ int test_iobuffer_consume_commit_01()
         bool b1 = (test_string == iob.to_string());
         bool b2 = (total_string == test_string);
     }
-    std:size_t count = iob.size();
+    std::size_t count = (std::size_t)iob.size();
     std::size_t i = 0;
     while(iob.size() > 0) {
         std::string string_before{iob.to_string()};
@@ -388,3 +390,4 @@ int main()
     int rc = UT_RUN();
     return rc;
 }
+#pragma GCC diagnostic pop

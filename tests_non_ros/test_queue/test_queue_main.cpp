@@ -14,6 +14,10 @@
 #include <sys/epoll.h>
 #include <poll.h>
 using namespace threadsafe;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 int test_simple()
 {
@@ -170,3 +174,4 @@ int main()
     int rc = UT_RUN();
     return rc;
 }
+#pragma GCC diagnostic pop

@@ -1,0 +1,8 @@
+//
+// Created by robert on 12/27/25.
+//
+
+#ifndef CPP_SERIAL_BRIDGE_TEXT_MESSAGE_H
+#define CPP_SERIAL_BRIDGE_TEXT_MESSAGE_H
+
+#endif //CPP_SERIAL_BRIDGE_TEXT_MESSAGE_H

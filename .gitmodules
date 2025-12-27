@@ -1,3 +1,6 @@
 [submodule "jsoncons"]
 	path = jsoncons
 	url = git@github.com:danielaparker/jsoncons.git
+[submodule "rbl_cpp"]
+	path = rbl_cpp
+	url = git@github.com:robertblackwell/rbl_cpp.git
