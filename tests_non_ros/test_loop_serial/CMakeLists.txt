@@ -4,6 +4,7 @@
 
 set(CMAKE_CXX_STANDARD 20)
 set( CMAKE_VERBOSE_MAKEFILE on )
+function(test_01)
 set(TARGET test_loop_serial)
 add_executable(${TARGET}
     test_loop_serial.cpp
@@ -25,5 +26,31 @@ target_include_directories(${TARGET}
 )
 
 add_test(${TARGET} ${TARGET})
+endfunction()
+function(test_02)
+set(TARGET test_serial_read)
+add_executable(${TARGET}
+    test_serial_read.cpp
+    ${PKG_DIR}/src/serial_link/serial_link.cpp
+    ${PKG_DIR}/src/serial_link/serial_link.h
+    ${PKG_DIR}/src/serial_link/sync_serial_link.cpp
+    ${PKG_DIR}/src/serial_link/sync_serial_link.h
+    ${PKG_DIR}/src/serial_link/serial_settings.h
+    ${PKG_DIR}/src/serial_link/serial_settings.cpp
+	${PKG_DIR}/rbl_cpp/src/iobuffer.h
+	${PKG_DIR}/rbl_cpp/src/iobuffer.cpp
+    ${PKG_DIR}/rbl_cpp/src/unittest.h
+    ${PKG_DIR}/rbl_cpp/src/unittest.c
+    ${PKG_DIR}/rbl_cpp/src/logger.h
+    ${PKG_DIR}/rbl_cpp/src/logger.cpp
+)
 
+target_include_directories(${TARGET}
+		PUBLIC
+		${TESTS_INCLUDE_DIRS}
+)
 
+add_test(${TARGET} ${TARGET})
+endfunction()
+
+test_02()

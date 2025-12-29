@@ -22,25 +22,38 @@ namespace fs = std::filesystem;
 } while (0);
 
 
-std::vector<std::string> list_serial_devices(std::string dir = "/dev")
+std::vector<std::string> list_serial_devices(std::string dir = "/dev", std::string prefix = "ttyACM")
 {
     std::vector<std::string> result{};
     for(const auto & entry : fs::directory_iterator(dir)) {
         auto p = entry.path().generic_string();
-        if(p.find("ttyACM") != std::string::npos) { //} || p.find("ttyUSB")) {
+        if(p.find(prefix) != std::string::npos) {
             result.push_back(p);
         }
     }
     return result;
 }
-int open_serial(std::string path)
+int open_serial_non_blocking(std::string path)
 {
     int fd = open(path.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK /*same as O_NDELAY*/);
     if(fd < 0) {
-        throw std::runtime_error(std::format("failed opening %s", path.c_str()));
+        // CHeck the user is in the dialout group
+        throw std::runtime_error(std::format("failed opening non blocking %s - check the user is in the dialout group", path));
     }
     if(! isatty(fd)) {
-        throw std::runtime_error(std::format("isatty failed path:[%s]", path.c_str()));
+        throw std::runtime_error(std::format("open non_blocking isatty failed path:[%s]", path));
+    }
+    return fd;
+}
+int open_serial_blocking(std::string path)
+{
+    int fd = open(path.c_str(), O_RDWR | O_NOCTTY);
+    if(fd < 0) {
+        // CHeck the user is in the dialout group
+        throw std::runtime_error(std::format("failed opening blocking %s - check the user is in the dialout group", path));
+    }
+    if(! isatty(fd)) {
+        throw std::runtime_error(std::format("open blocking isatty failed path:[%s]", path));
     }
     return fd;
 }

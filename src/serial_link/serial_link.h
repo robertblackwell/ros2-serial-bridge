@@ -10,6 +10,11 @@
 using namespace rbl;
 namespace serial_bridge {
     class SerialLink {
+        struct LineParser {
+            rbl::IoBuffer::UPtr m_input_message_buffer_uptr;
+            LineParser();
+            void consume(rbl::IoBuffer& iob, const std::function<void(IoBuffer::UPtr)>& new_msg_cb);
+        };
     public:
     typedef std::function<void(IoBuffer::UPtr)>  OnRecvCallback;
     typedef std::unique_ptr<SerialLink>          UPtr; 
@@ -17,7 +22,8 @@ namespace serial_bridge {
          * The constructor only initializes a few member variables.
          * all the action takes place in run()
          */
-        explicit SerialLink();
+        // explicit SerialLink();
+        SerialLink(const std::string& dev);
         ~SerialLink();
 
         void send_threadsafe(IoBuffer::UPtr buffer_uptr) const;
@@ -29,7 +35,7 @@ namespace serial_bridge {
          *
          * If any that fails it sleeps for a second and then tries again forever.
          */
-        [[noreturn]] void run(OnRecvCallback  cb);
+        void run(OnRecvCallback  cb);
 
 #if 0
 //        rclcpp::Logger get_logger();
@@ -42,7 +48,7 @@ namespace serial_bridge {
         std::unique_ptr<threadsafe::TriggerQueue<IoBuffer::UPtr>> m_client_queue_uptr;
 
         OnRecvCallback                     m_recv_callback;
-        
+        std::string         m_device;
         int                 m_serial_fd;
         int                 m_output_queue_fd;
         fd_set              m_rfds;
@@ -55,7 +61,7 @@ namespace serial_bridge {
         IoBuffer::UPtr      m_write_buffer_uptr;        //holds the ddata bytes that are currenty being written
         IoBuffer::UPtr      m_read_buffer_uptr;         // holds the databytes that have been read but not processed into messages
         IoBuffer::UPtr      m_input_message_buffer_uptr; // holds the bytes that have been processd from m_read_buffer into the
-        
+        LineParser          m_parser;
         void try_write();
         void try_read();
     };
