@@ -23,43 +23,56 @@ struct Context {
 
 void* thread_01(const std::string& dev)
 {
-    serial_bridge::SerialLink serial{dev};
+    serial_bridge::SerialLink serial{dev, 1};
     std::thread t([&serial]()
     {
+
         serial.run([](IoBuffer::UPtr up)
         {
-            std::cout << "thread_01  got one bbbbbbb " << up->c_str() << std::endl;
+            std::cout << "YYYYYYYY  thread_01  got one bbbbbbb [" << up->c_str() << "]" << std::endl;
             up = nullptr;
         });
     });
-    // sleep(3);
-    // for (int i = 100; i < 10000; i++) {
-    //     sleep(1);
-    //     IoBuffer::UPtr up(new IoBuffer());
-    //     snprintf((char*)up->space_ptr(), up->space_len(), "AAAA This is a message\n");
-    //     serial.send_threadsafe(std::move(up));
-    // }
+    sleep(1);
+    for (int i = 100; i < 130; i++) {
+        // usleep(50000);
+        IoBuffer::UPtr up = std::make_unique<IoBuffer>();
+        auto n = snprintf((char*)up->space_ptr(), up->space_len(), "AAAA This is a message\n");
+        up->commit(n);
+        auto ss = std::format("{} AAAA This is a message\n", i);
+        // std::cout << "thread_01 about to send " << ss << std::endl;
+        auto up2 = std::make_unique<IoBuffer>(ss);
+        serial.send_threadsafe(std::move(up2));
+    }
     t.join();
     return nullptr;
 }
 
 void* thread_02(const std::string& dev)
 {
-    serial_bridge::SerialLink serial{dev};
+    serial_bridge::SerialLink serial{dev, 2};
     std::thread t([&serial]()
     {
-        serial.run([](IoBuffer::UPtr up)
+        serial.run([&serial](IoBuffer::UPtr up)
         {
-            std::cout << "thread 02 got one aaaaa " << up->c_str() << std::endl;
-            up = nullptr;
+            std::cout << "XXXXX thread 02 got one aaaaa [" << up->c_str() << "]" << std::endl;
+            if (false) {
+                // up = nullptr;
+                auto s = std::format("[thread 02 got one aaaaa {}]", up->c_str());
+                // std::cout << "thread 02 about to send " << s << std::endl;
+                auto up2 = std::make_unique<IoBuffer>(s);
+                up2->append("\n");
+                // if (serial.m_instance_id == 2)
+                //     printf("got here");
+                serial.send_threadsafe(std::move(up2));
+            }
         });
     });
-    sleep(2);
-    for (int i = 100; i < 10000; i++) {
-        sleep(1);
-        IoBuffer::UPtr up(new IoBuffer());
-        auto nn = snprintf((char*)up->space_ptr(), up->space_len(), "BBBBBBB  This is a message\n");
-        up->commit(nn);
+    sleep(1);
+    for (int i = 100; i < 130; i++) {
+        // usleep(50000);
+        auto nn = std::format("{} BBBBBBB  This is a message\n", i);
+        IoBuffer::UPtr up = std::make_unique<IoBuffer>(nn);
         serial.send_threadsafe(std::move(up));
     }
     t.join();

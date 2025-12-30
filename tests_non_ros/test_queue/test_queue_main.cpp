@@ -71,19 +71,24 @@ int test_plain_queue()
 }
 int test_fd_queue()
 {
+    int put_count = 0;
     threadsafe::FdQueue<std::string> test_queue{};
-    int count = 0;
-
     auto writer = [&]() {
         while (true) {
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
             auto now = std::chrono::system_clock::now();
             std::time_t now_time = std::chrono::system_clock::to_time_t(now);
             auto now_c_str = std::ctime(&now_time);
-            printf("background thread put count: %d msg: %s", count, now_c_str);
+            printf("background thread put count: %d msg: %s", put_count, now_c_str);
             auto msg = std::string(now_c_str);
+            auto msg2 = std::string(now_c_str);
             test_queue.put(std::move(msg));
-            count++;
+            put_count++;
+            test_queue.put(std::move(msg));
+            put_count++;
+            if (put_count > 1) {
+                break;
+            }
         }
     };
     auto reader_select = [&]() {
@@ -111,12 +116,15 @@ int test_fd_queue()
                     throw std::runtime_error(
                             std::format("select error retval: %d  errno: %d  strerror: %s", retval, saved_errno,
                                         strerror(saved_errno)));
+                } else if (retval == 0) {
+                    printf("select timeout \n");
                 } else {
                     std::string msg{};
                     bool r = FD_ISSET(fd, &read_fds);
                     bool w = FD_ISSET(fd, &write_fds);
                     bool x = FD_ISSET(fd, &except_fds);
                     if (r) {
+                        auto c = test_queue.count();
                         bool result = test_queue.get_nowait(msg);
                         printf("main thread got :%s", msg.c_str());
                     }
@@ -160,10 +168,11 @@ int test_fd_queue()
 
 
 
-    std::jthread t(reader_poll);
-//    std::this_thread::sleep_for(std::chrono::milliseconds(500) );
-    writer();
-    t.join();
+    std::jthread t1(writer);
+    std::jthread t2(reader_select);
+    // std::jthread t3(reader_poll);
+    t1.join();
+    t2.join();
     return 0;
 }
 

@@ -1,20 +1,16 @@
-#ifndef H_port_h
-#define H_port_h
+#ifndef H_serial_link_h
+#define H_serial_link_h
 #include <utility>
 #include <memory>
 #include <variant>
 #include <sys/select.h>
 #include <queue.h>
 #include <iobuffer.h>
+#include "parser.h"
 
 using namespace rbl;
 namespace serial_bridge {
     class SerialLink {
-        struct LineParser {
-            rbl::IoBuffer::UPtr m_input_message_buffer_uptr;
-            LineParser();
-            void consume(rbl::IoBuffer& iob, const std::function<void(IoBuffer::UPtr)>& new_msg_cb);
-        };
     public:
     typedef std::function<void(IoBuffer::UPtr)>  OnRecvCallback;
     typedef std::unique_ptr<SerialLink>          UPtr; 
@@ -23,7 +19,7 @@ namespace serial_bridge {
          * all the action takes place in run()
          */
         // explicit SerialLink();
-        SerialLink(const std::string& dev);
+        SerialLink(const std::string& dev, int instance_id);
         ~SerialLink();
 
         void send_threadsafe(IoBuffer::UPtr buffer_uptr) const;
@@ -35,20 +31,14 @@ namespace serial_bridge {
          *
          * If any that fails it sleeps for a second and then tries again forever.
          */
-        void run(OnRecvCallback  cb);
+        void run(OnRecvCallback  recv_msg_cb);
 
-#if 0
-//        rclcpp::Logger get_logger();
-        void guard_condition_callback(std::size_t n);
-//        void guard_trigger_function();
-//        rclcpp::Node*                      m_companion_node_ptr;
-//        rclcpp::GuardCondition::SharedPtr  m_guard_condition_sptr;
-#endif
         std::unique_ptr<threadsafe::FdQueue<IoBuffer::UPtr>>      m_output_queue_uptr;
         std::unique_ptr<threadsafe::TriggerQueue<IoBuffer::UPtr>> m_client_queue_uptr;
 
         OnRecvCallback                     m_recv_callback;
         std::string         m_device;
+        int                 m_instance_id;
         int                 m_serial_fd;
         int                 m_output_queue_fd;
         fd_set              m_rfds;

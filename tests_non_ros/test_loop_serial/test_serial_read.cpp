@@ -23,19 +23,40 @@ struct Context {
 };
 
 using MyVariant = std::variant<std::string, int>;
-std::vector<MyVariant> s1 = {"ABC", 10, "CD/n"};
+std::vector<MyVariant> test_case1 = {"ABCDEFGHIJKLMNOP", 2, "1234567890\n"};
 
+std::vector<MyVariant> make_test_case(int id)
+{
+    std::vector<MyVariant> tc = {std::format("{}: ABCDEFGHIJKLMNOP", id), 250000, "1234567890\n"};
+    return tc;
+}
 template<class... Ts>
 struct overloaded: Ts... {
     using Ts::operator()...;
 };
 
+std::string expected(std::vector<MyVariant> input)
+{
+    std::string result{};
+    for (auto bit : input) {
+        std::visit(overloaded{
+            [](int delay) {;},
+            [&result](std::string s){result += s;}
+        }, bit);
+    }
+    result.pop_back();
+    return result;
+}
+
 void* reader_thread_01(const std::string& dev)
 {
-    serial_bridge::SerialLink serial{dev};
-    serial.run([](IoBuffer::UPtr up)
+    serial_bridge::SerialLink serial{dev, 1};
+    int index = 100;
+    serial.run([&index](IoBuffer::UPtr up)
     {
-        std::cout << "reader_thread_01  got one bbbbbbb " << up->c_str() << std::endl;
+        std::string expt = expected(make_test_case(index++));
+        bool ok = (std::string{up->c_str()} == expt);
+        std::cout << "reader_thread_01  got one bool: " << ok << "   bbbbbbb " << up->c_str() << std::endl;
         up = nullptr;
     });
     return nullptr;
@@ -46,10 +67,11 @@ void* writer_thread_02(const std::string& dev)
     serial_bridge::SyncSerialLink sync_serial{dev};
     usleep(250000);
     for (int i = 100; i < 10000; i++) {
-        usleep(150000);
-        for (auto element: s1) {
+        usleep(15000);
+        auto tc = make_test_case(i);
+        for (auto element: tc) {
             std::visit(overloaded{
-                [](int delay) {sleep(delay);},
+                [](int delay) {usleep(delay);},
                 [&sync_serial](std::string s){sync_serial.send(const_cast<char*>(s.c_str()), s.length());}
             }, element);
         }

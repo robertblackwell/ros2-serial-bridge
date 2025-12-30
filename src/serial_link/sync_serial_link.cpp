@@ -5,8 +5,6 @@
 #include <memory>
 #include <sys/select.h>
 #include <chrono>
-#define RBL_LOG_ENABLED
-#define RBL_LOG_ALLOW_GLOBAL
 #include <logger.h>
 #include "sync_serial_link.h"
 #include "serial_settings.h"
@@ -31,25 +29,6 @@ serial_bridge::SyncSerialLink::~SyncSerialLink()
 {
     close(m_serial_fd);
 }
-#if 0
-//void serial_bridge::SerialLink::guard_trigger_function()
-//{
-//    m_guard_condition_sptr->trigger();
-//}
-void serial_bridge::SerialLink::guard_condition_callback([[maybe_unused]]std::size_t n)
-{
-    IoBuffer::UPtr input_buffer_uptr  = std::make_unique<IoBuffer>();
-    bool gotone = m_client_queue_uptr->get_nowait(input_buffer_uptr);
-    if(gotone) {
-        m_recv_callback(std::move(input_buffer_uptr));
-    }
-    return;
-}
-rclcpp::Logger serial_bridge::SerialLink::get_logger()
-{
-    return m_companion_node_ptr->get_logger();
-}
-#endif
 void serial_bridge::SyncSerialLink::send(char* buf, std::size_t buflen) const
 {
     ssize_t n = write(m_serial_fd, buf, buflen);
