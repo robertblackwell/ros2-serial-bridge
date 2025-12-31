@@ -2,30 +2,28 @@
 #cmake_minimum_required(VERSION 3.27)
 #project(serialio)
 
-set(CMAKE_CXX_STANDARD 20)
-set( CMAKE_VERBOSE_MAKEFILE on )
+
 function(test_01)
 set(TARGET test_loop_serial)
-add_executable(${TARGET}
-    test_loop_serial.cpp
-    ${PKG_DIR}/src/serial_link/serial_link.cpp
-    ${PKG_DIR}/src/serial_link/serial_link.h
-    ${PKG_DIR}/src/serial_link/parser.h
-    ${PKG_DIR}/src/serial_link/parser.cpp
-    ${PKG_DIR}/src/serial_link/serial_settings.h
-    ${PKG_DIR}/src/serial_link/serial_settings.cpp
-	${PKG_DIR}/rbl_cpp/rbl/iobuffer.h
-	${PKG_DIR}/rbl_cpp/rbl/iobuffer.cpp
-    ${PKG_DIR}/rbl_cpp/rbl/unittest.h
-    ${PKG_DIR}/rbl_cpp/rbl/unittest.cpp
-    ${PKG_DIR}/rbl_cpp/rbl/logger.h
-    ${PKG_DIR}/rbl_cpp/rbl/logger.cpp
+add_executable(${TARGET} test_loop_serial.cpp
+#    ${PKG_DIR}/src/serial_link/serial_link.cpp
+#    ${PKG_DIR}/src/serial_link/serial_link.h
+#    ${PKG_DIR}/src/serial_link/parser.h
+#    ${PKG_DIR}/src/serial_link/parser.cpp
+#    ${PKG_DIR}/src/serial_link/serial_settings.h
+#    ${PKG_DIR}/src/serial_link/serial_settings.cpp
+#	${PKG_DIR}/rbl_cpp/rbl/iobuffer.h
+#	${PKG_DIR}/rbl_cpp/rbl/iobuffer.cpp
+#    ${PKG_DIR}/rbl_cpp/rbl/unittest.h
+#    ${PKG_DIR}/rbl_cpp/rbl/unittest.cpp
+#    ${PKG_DIR}/rbl_cpp/rbl/logger.h
+#    ${PKG_DIR}/rbl_cpp/rbl/logger.cpp
 )
-
-target_include_directories(${TARGET}
-		PUBLIC
-		${TESTS_INCLUDE_DIRS}
-)
+target_link_libraries(${TARGET} rbl serial)
+#target_include_directories(${TARGET}
+#		PUBLIC
+#		${TESTS_INCLUDE_DIRS}
+#)
 #target_compile_definitions(${TARGET} PUBLIC RBL_LOG_ENABLED RBL_LOG_ALLOW_GLOBAL)
 
 add_test(${TARGET} ${TARGET})
@@ -34,28 +32,28 @@ endfunction()
 
 function(test_02)
 set(TARGET test_serial_read)
-add_executable(${TARGET}
-    test_serial_read.cpp
-    ${PKG_DIR}/src/serial_link/serial_link.cpp
-    ${PKG_DIR}/src/serial_link/serial_link.h
-    ${PKG_DIR}/src/serial_link/parser.h
-    ${PKG_DIR}/src/serial_link/parser.cpp
-    ${PKG_DIR}/src/serial_link/sync_serial_link.cpp
-    ${PKG_DIR}/src/serial_link/sync_serial_link.h
-    ${PKG_DIR}/src/serial_link/serial_settings.h
-    ${PKG_DIR}/src/serial_link/serial_settings.cpp
-	${PKG_DIR}/rbl_cpp/rbl/iobuffer.h
-	${PKG_DIR}/rbl_cpp/rbl/iobuffer.cpp
-    ${PKG_DIR}/rbl_cpp/rbl/unittest.h
-    ${PKG_DIR}/rbl_cpp/rbl/unittest.cpp
-    ${PKG_DIR}/rbl_cpp/rbl/logger.h
-    ${PKG_DIR}/rbl_cpp/rbl/logger.cpp
+add_executable(${TARGET} test_serial_read.cpp
+#    ${PKG_DIR}/src/serial_link/serial_link.cpp
+#    ${PKG_DIR}/src/serial_link/serial_link.h
+#    ${PKG_DIR}/src/serial_link/parser.h
+#    ${PKG_DIR}/src/serial_link/parser.cpp
+#    ${PKG_DIR}/src/serial_link/sync_serial_link.cpp
+#    ${PKG_DIR}/src/serial_link/sync_serial_link.h
+#    ${PKG_DIR}/src/serial_link/serial_settings.h
+#    ${PKG_DIR}/src/serial_link/serial_settings.cpp
+#	${PKG_DIR}/rbl_cpp/rbl/iobuffer.h
+#	${PKG_DIR}/rbl_cpp/rbl/iobuffer.cpp
+#    ${PKG_DIR}/rbl_cpp/rbl/unittest.h
+#    ${PKG_DIR}/rbl_cpp/rbl/unittest.cpp
+#    ${PKG_DIR}/rbl_cpp/rbl/logger.h
+#    ${PKG_DIR}/rbl_cpp/rbl/logger.cpp
 )
+target_link_libraries(${TARGET} rbl serial)
 
-target_include_directories(${TARGET}
-		PUBLIC
-		${TESTS_INCLUDE_DIRS}
-)
+#target_include_directories(${TARGET}
+#		PUBLIC
+#		${TESTS_INCLUDE_DIRS}
+#)
 target_compile_definitions(${TARGET} PUBLIC RBL_LOG_ENABLED RBL_LOG_ALLOW_GLOBAL)
 
 add_test(${TARGET} ${TARGET})
