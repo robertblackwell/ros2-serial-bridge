@@ -8,7 +8,7 @@ add_executable(${TARGET}
 		${FBCONTROL_LIB_DIR}/motor_profile.h
 		${FBCONTROL_LIB_DIR}/motor_profile.cpp
 		${TESTS_COMMON_DIR}/unittest.h
-		${TESTS_COMMON_DIR}/unittest.c
+		${TESTS_COMMON_DIR}/unittest.cpp
 		${BRIDGE_LIB_DIR}/serial_settings.h
 		${BRIDGE_LIB_DIR}/serial_settings.cpp
 		${FIRMWARE_COMMON_DIR}/trace.h

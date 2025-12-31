@@ -17,11 +17,17 @@ add_executable(${TARGET}
 	${PKG_DIR}/rbl_cpp/rbl/iobuffer.h
 	${PKG_DIR}/rbl_cpp/rbl/iobuffer.cpp
     ${PKG_DIR}/rbl_cpp/rbl/unittest.h
-    ${PKG_DIR}/rbl_cpp/rbl/unittest.c
+    ${PKG_DIR}/rbl_cpp/rbl/unittest.cpp
     ${PKG_DIR}/rbl_cpp/rbl/logger.h
     ${PKG_DIR}/rbl_cpp/rbl/logger.cpp
 )
-
+target_compile_options(${TARGET} PRIVATE
+    $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Release>:-DNDEBUG>
+    $<$<NOT:$<CONFIG:Release>>:-DDEBUG>
+    $<$<NOT:$<CONFIG:Release>>:-Wall>
+    $<$<NOT:$<CONFIG:Release>>:-g>
+)
 target_include_directories(${TARGET}
 		PUBLIC
 		${TESTS_INCLUDE_DIRS}
@@ -47,16 +53,23 @@ add_executable(${TARGET}
 	${PKG_DIR}/rbl_cpp/rbl/iobuffer.h
 	${PKG_DIR}/rbl_cpp/rbl/iobuffer.cpp
     ${PKG_DIR}/rbl_cpp/rbl/unittest.h
-    ${PKG_DIR}/rbl_cpp/rbl/unittest.c
+    ${PKG_DIR}/rbl_cpp/rbl/unittest.cpp
     ${PKG_DIR}/rbl_cpp/rbl/logger.h
     ${PKG_DIR}/rbl_cpp/rbl/logger.cpp
+)
+target_compile_options(${TARGET} PRIVATE
+    $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Release>:-DNDEBUG>
+    $<$<NOT:$<CONFIG:Release>>:-DDEBUG>
+    $<$<NOT:$<CONFIG:Release>>:-Wall>
+    $<$<NOT:$<CONFIG:Release>>:-g>
 )
 
 target_include_directories(${TARGET}
 		PUBLIC
 		${TESTS_INCLUDE_DIRS}
 )
-target_compile_definitions(${TARGET} PUBLIC RBL_LOG_ENABLED RBL_LOG_ALLOW_GLOBAL)
+#target_compile_definitions(${TARGET} PUBLIC RBL_LOG_ENABLED RBL_LOG_ALLOW_GLOBAL)
 
 add_test(${TARGET} ${TARGET})
 endfunction()

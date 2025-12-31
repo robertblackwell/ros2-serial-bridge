@@ -25,9 +25,14 @@ struct Context {
 using MyVariant = std::variant<std::string, int>;
 std::vector<MyVariant> test_case1 = {"ABCDEFGHIJKLMNOP", 2, "1234567890\n"};
 
-std::vector<MyVariant> make_test_case(int id)
+std::vector<MyVariant> make_test_case_with_delay(int id)
 {
     std::vector<MyVariant> tc = {std::format("{}: ABCDEFGHIJKLMNOP", id), 250000, "1234567890\n"};
+    return tc;
+}
+std::vector<MyVariant> make_test_case(int id)
+{
+    std::vector<MyVariant> tc = {std::format("{}: ABCDEFGHIJKLMNOP1234567890\n", id)};
     return tc;
 }
 template<class... Ts>
@@ -47,17 +52,30 @@ std::string expected(std::vector<MyVariant> input)
     result.pop_back();
     return result;
 }
-
+const int max_count = 1000;
+auto start_time = std::chrono::high_resolution_clock::now();
+std::chrono::time_point<std::chrono::high_resolution_clock> end_time_g;
 void* reader_thread_01(const std::string& dev)
 {
     serial_bridge::SerialLink serial{dev, 1};
     int index = 100;
-    serial.run([&index](IoBuffer::UPtr up)
+    int max_index = max_count;
+    int char_count = 0;
+    std::chrono::time_point<std::chrono::high_resolution_clock>* end_time_ref = &end_time_g;
+    serial.run([&index, max_index, end_time_ref, &char_count](IoBuffer::UPtr up)
     {
         std::string expt = expected(make_test_case(index++));
         bool ok = (std::string{up->c_str()} == expt);
-        std::cout << "reader_thread_01  got one bool: " << ok << "   bbbbbbb " << up->c_str() << std::endl;
+        char_count += static_cast<int>(up->data_len());
+        assert(ok);
+        // std::cout << "reader_thread_01  got one bool: " << ok << "   bbbbbbb " << up->c_str() << std::endl;
         up = nullptr;
+        if (index == max_index) {
+            *end_time_ref = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>((*end_time_ref) - start_time);
+            std::cout << "chars: " <<  char_count << " millisecs: "<< duration.count() << " chars / sec: " << (char_count/duration.count())*1000 << std::endl;
+            exit(0);
+        }
     });
     return nullptr;
 }
@@ -66,8 +84,8 @@ void* writer_thread_02(const std::string& dev)
 {
     serial_bridge::SyncSerialLink sync_serial{dev};
     usleep(250000);
-    for (int i = 100; i < 10000; i++) {
-        usleep(15000);
+    for (int i = 100; i <= max_count; i++) {
+        // usleep(15000);
         auto tc = make_test_case(i);
         for (auto element: tc) {
             std::visit(overloaded{

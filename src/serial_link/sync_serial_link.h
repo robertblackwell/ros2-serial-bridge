@@ -4,8 +4,8 @@
 #include <memory>
 #include <variant>
 #include <sys/select.h>
-#include <queue.h>
-#include <iobuffer.h>
+#include <rbl/queue.h>
+#include <rbl/iobuffer.h>
 
 using namespace rbl;
 namespace serial_bridge {

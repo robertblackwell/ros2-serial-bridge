@@ -5,7 +5,7 @@
 #include <memory>
 #include <sys/select.h>
 #include <chrono>
-#include <logger.h>
+#include <rbl/logger.h>
 #include "sync_serial_link.h"
 #include "serial_settings.h"
 
@@ -16,9 +16,9 @@ serial_bridge::SyncSerialLink::SyncSerialLink(const std::string& dev )
 {
     m_serial_fd = -1;
     m_device = std::string{dev};
-    int fd = open_serial_non_blocking(dev);
+    int fd = open_serial_blocking(dev);
     if (fd < 0) {
-        throw std::runtime_error(std::format("Failed to open serial device {}", dev.c_str()));
+        throw std::runtime_error(std::format("Failed to open serial device {}", dev));
     }
     m_serial_fd = fd;
     RBL_LOG_FMT("succeeded in openning %s fd: %d ", dev.c_str(), m_serial_fd)
@@ -33,6 +33,7 @@ void serial_bridge::SyncSerialLink::send(char* buf, std::size_t buflen) const
 {
     ssize_t n = write(m_serial_fd, buf, buflen);
     int errno_saved = errno;
+    // auto se = strerror(errno_saved);
     if (n == -1) {
         throw std::runtime_error(std::format("write failed errno: {}", errno_saved));
     } else if ((n > 0) && (static_cast<std::size_t>(n) != buflen)) {

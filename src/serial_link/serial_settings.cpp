@@ -7,6 +7,7 @@
 #include <vector>
 #include <format>
 #include <filesystem>
+#include <iostream>
 namespace fs = std::filesystem;
 
 #define CHECK(retval, msg) do{          \
@@ -47,7 +48,8 @@ int open_serial_non_blocking(std::string path)
 }
 int open_serial_blocking(std::string path)
 {
-    int fd = open(path.c_str(), O_RDWR | O_NOCTTY);
+    int fd = open(path.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK );
+    fcntl(fd, F_SETFL, 0);
     if(fd < 0) {
         // CHeck the user is in the dialout group
         throw std::runtime_error(std::format("failed opening blocking %s - check the user is in the dialout group", path));

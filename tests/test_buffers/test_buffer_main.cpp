@@ -3,8 +3,8 @@
 #include <cstring>
 #include <vector>
 #include <string>
-#include <unittest.h>
-#include <iobuffer.h>
+#include <rbl/unittest.h>
+#include <rbl/iobuffer.h>
 
 using namespace rbl;
 #pragma GCC diagnostic push
@@ -282,7 +282,7 @@ int test_iobuffer_consume_commit_01()
     std::size_t y = sconst.size();
     std::string total_string{};
 
-    for(int j; j < 10; j++) {
+    for(int j = 0; j < 10; j++) {
         total_string += sconst;
         // simulate a read operation into the 'space'
         void* p1 = iob.space_ptr();
@@ -295,9 +295,9 @@ int test_iobuffer_consume_commit_01()
         bool b1 = (test_string == iob.to_string());
         bool b2 = (total_string == test_string);
     }
-    std::size_t count = (std::size_t)iob.size();
+    auto count = (std::size_t)iob.size();
     std::size_t i = 0;
-    while(iob.size() > 0) {
+    while(!iob.empty()) {
         std::string string_before{iob.to_string()};
         iob.consume(1);
         std::string string_after{iob.to_string()};

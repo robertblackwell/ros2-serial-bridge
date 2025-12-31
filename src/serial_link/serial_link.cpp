@@ -6,7 +6,7 @@
 #include <memory>
 #include <sys/select.h>
 #include <chrono>
-#include <logger.h>
+#include <rbl/logger.h>
 #include "serial_link.h"
 #include "serial_settings.h"
 

@@ -5,19 +5,20 @@
 set(CMAKE_CXX_STANDARD 20)
 set( CMAKE_VERBOSE_MAKEFILE on )
 
-set(TARGET test_first_guess)
+set(TARGET test_queue)
 add_executable(${TARGET}
-		test_first_guess.cpp
-		${FBCONTROL_LIB_DIR}/custom.h
-		${FBCONTROL_LIB_DIR}/custom.cpp
-		${TESTS_COMMON_DIR}/unittest.h
-		${TESTS_COMMON_DIR}/unittest.c
+        test_queue_main.cpp
+		${PKG_DIR}/rbl_cpp/rbl/queue.h
+		${PKG_DIR}/rbl_cpp/rbl/fd_functions.cpp
+		${PKG_DIR}/rbl_cpp/rbl/unittest.h
+		${PKG_DIR}/rbl_cpp/rbl/unittest.cpp
 		)
 
 target_include_directories(${TARGET}
 		PUBLIC
 		${TESTS_INCLUDE_DIRS}
 )
+
 
 add_test(${TARGET} ${TARGET})
 

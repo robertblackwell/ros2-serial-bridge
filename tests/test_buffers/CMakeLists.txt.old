@@ -5,20 +5,19 @@
 set(CMAKE_CXX_STANDARD 20)
 set( CMAKE_VERBOSE_MAKEFILE on )
 
-set(TARGET test_queue)
+set(TARGET test_buffers)
 add_executable(${TARGET}
-        test_queue_main.cpp
-		${PKG_DIR}/rbl_cpp/rbl/queue.h
-		${PKG_DIR}/rbl_cpp/rbl/fd_functions.cpp
-		${PKG_DIR}/rbl_cpp/rbl/unittest.h
-		${PKG_DIR}/rbl_cpp/rbl/unittest.c
-		)
+	test_buffer_main.cpp
+	${PKG_DIR}/rbl_cpp/rbl/iobuffer.h 
+	${PKG_DIR}/rbl_cpp/rbl/iobuffer.cpp
+    ${PKG_DIR}/rbl_cpp/rbl/unittest.h
+    ${PKG_DIR}/rbl_cpp/rbl/unittest.cpp
+)
 
 target_include_directories(${TARGET}
 		PUBLIC
 		${TESTS_INCLUDE_DIRS}
 )
-
 
 add_test(${TARGET} ${TARGET})
 
