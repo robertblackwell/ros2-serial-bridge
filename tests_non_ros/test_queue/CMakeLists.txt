@@ -8,10 +8,10 @@ set( CMAKE_VERBOSE_MAKEFILE on )
 set(TARGET test_queue)
 add_executable(${TARGET}
         test_queue_main.cpp
-		${PKG_DIR}/rbl_cpp/src/queue.h
-		${PKG_DIR}/rbl_cpp/src/fd_functions.cpp
-		${PKG_DIR}/rbl_cpp/src/unittest.h
-		${PKG_DIR}/rbl_cpp/src/unittest.c
+		${PKG_DIR}/rbl_cpp/rbl/queue.h
+		${PKG_DIR}/rbl_cpp/rbl/fd_functions.cpp
+		${PKG_DIR}/rbl_cpp/rbl/unittest.h
+		${PKG_DIR}/rbl_cpp/rbl/unittest.c
 		)
 
 target_include_directories(${TARGET}

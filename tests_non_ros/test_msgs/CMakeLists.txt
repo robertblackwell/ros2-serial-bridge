@@ -4,8 +4,8 @@ add_executable(${TARGET}
 	test_msgs.cpp
 	${PKG_SRC_DIR}/msgs/msgs.h 
 	${PKG_SRC_DIR}/msgs/msgs.cpp
-	${PKG_DIR}/rbl_cpp/src/iobuffer.h 
-	${PKG_DIR}/rbl_cpp/src/iobuffer.cpp
+	${PKG_DIR}/rbl_cpp/rbl/iobuffer.h 
+	${PKG_DIR}/rbl_cpp/rbl/iobuffer.cpp
 )
 target_compile_definitions(${TARGET} 
 	PUBLIC 

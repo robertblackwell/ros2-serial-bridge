@@ -14,12 +14,12 @@ add_executable(${TARGET}
     ${PKG_DIR}/src/serial_link/parser.cpp
     ${PKG_DIR}/src/serial_link/serial_settings.h
     ${PKG_DIR}/src/serial_link/serial_settings.cpp
-	${PKG_DIR}/rbl_cpp/src/iobuffer.h
-	${PKG_DIR}/rbl_cpp/src/iobuffer.cpp
-    ${PKG_DIR}/rbl_cpp/src/unittest.h
-    ${PKG_DIR}/rbl_cpp/src/unittest.c
-    ${PKG_DIR}/rbl_cpp/src/logger.h
-    ${PKG_DIR}/rbl_cpp/src/logger.cpp
+	${PKG_DIR}/rbl_cpp/rbl/iobuffer.h
+	${PKG_DIR}/rbl_cpp/rbl/iobuffer.cpp
+    ${PKG_DIR}/rbl_cpp/rbl/unittest.h
+    ${PKG_DIR}/rbl_cpp/rbl/unittest.c
+    ${PKG_DIR}/rbl_cpp/rbl/logger.h
+    ${PKG_DIR}/rbl_cpp/rbl/logger.cpp
 )
 
 target_include_directories(${TARGET}
@@ -44,12 +44,12 @@ add_executable(${TARGET}
     ${PKG_DIR}/src/serial_link/sync_serial_link.h
     ${PKG_DIR}/src/serial_link/serial_settings.h
     ${PKG_DIR}/src/serial_link/serial_settings.cpp
-	${PKG_DIR}/rbl_cpp/src/iobuffer.h
-	${PKG_DIR}/rbl_cpp/src/iobuffer.cpp
-    ${PKG_DIR}/rbl_cpp/src/unittest.h
-    ${PKG_DIR}/rbl_cpp/src/unittest.c
-    ${PKG_DIR}/rbl_cpp/src/logger.h
-    ${PKG_DIR}/rbl_cpp/src/logger.cpp
+	${PKG_DIR}/rbl_cpp/rbl/iobuffer.h
+	${PKG_DIR}/rbl_cpp/rbl/iobuffer.cpp
+    ${PKG_DIR}/rbl_cpp/rbl/unittest.h
+    ${PKG_DIR}/rbl_cpp/rbl/unittest.c
+    ${PKG_DIR}/rbl_cpp/rbl/logger.h
+    ${PKG_DIR}/rbl_cpp/rbl/logger.cpp
 )
 
 target_include_directories(${TARGET}
