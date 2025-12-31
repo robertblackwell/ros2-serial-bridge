@@ -23,22 +23,22 @@ set(SRC_LIST
 	src/bridge_lib/msgs.h
 	src/bridge_lib/msgs.cpp
 
-	rbl_cpp/src/iobuffer.h
-	rbl_cpp/src/iobuffer.cpp
-	rbl_cpp/src/fd_functions.h
-	rbl_cpp/src/fd_functions.cpp
-	rbl_cpp/src/queue.h
+	rbl_cpp/rbl/iobuffer.h
+	rbl_cpp/rbl/iobuffer.cpp
+	rbl_cpp/rbl/fd_functions.h
+	rbl_cpp/rbl/fd_functions.cpp
+	rbl_cpp/rbl/queue.h
 )
 set(INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 set(SRC_DIR     ${CMAKE_CURRENT_LIST_DIR}/src)
 set(JSON_DIR    ${CMAKE_CURRENT_LIST_DIR}/jsoncons/include)
-set(RBL_DIR     ${CMAKE_CURRENT_LIST_DIR}/rbl_cpp/src)
+set(RBL_DIR     ${CMAKE_CURRENT_LIST_DIR}/rbl_cpp/rbl)
 
 set(PKG_INCLUDE_DIRS 
 	${CMAKE_CURRENT_LIST_DIR}/include
 	${CMAKE_CURRENT_LIST_DIR}/src
 	${CMAKE_CURRENT_LIST_DIR}/jsoncons/include
-	${CMAKE_CURRENT_LIST_DIR}/rbl_cpp/src
+	${CMAKE_CURRENT_LIST_DIR}/rbl_cpp/rbl
 
 )
 add_subdirectory(tests_non_ros)
