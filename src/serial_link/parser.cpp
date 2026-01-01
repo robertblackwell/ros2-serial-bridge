@@ -33,4 +33,5 @@ void serial_bridge::LineParser::consume(rbl::IoBuffer& iob, const std::function<
             m_input_message_buffer_uptr->append(&ch, 1);
         }
     }
+    // std::cout << iob.empty() << std::endl;
 }

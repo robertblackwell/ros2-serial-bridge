@@ -28,8 +28,14 @@ void test_01()
     status.sample_sum = j["ss"].as<int64_t>();
     status.sample_time_stamp_usecs = j["ts"].as<int64_t>();
     status.motor_rpm_estimate = j["mr"].as<float>();
-
-    std::string x = j["ps"].as<std::string>();
+    auto x = j["ps"].as<std::string>();
+    auto y = (j["ps"].as<std::string>() == "F");
+    // status.direction_pin_state = j["ps"].as<bool>();
+    assert(status.sample_sum == 19283746);
+    assert(status.sample_time_stamp_usecs == 987654321);
+    assert(6708.0 <= status.motor_rpm_estimate && status.motor_rpm_estimate <= 6709.0);
+    // assert(status.direction_pin_state)
+    // std::string x = j["ps"].as<std::string>();
 
 }
 void test_02()

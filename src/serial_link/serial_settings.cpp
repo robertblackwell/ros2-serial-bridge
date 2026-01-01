@@ -49,6 +49,7 @@ int open_serial_non_blocking(std::string path)
 int open_serial_blocking(std::string path)
 {
     int fd = open(path.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK );
+    // open of serial device in BLOCKING mode will hang. This hack works
     fcntl(fd, F_SETFL, 0);
     if(fd < 0) {
         // CHeck the user is in the dialout group
