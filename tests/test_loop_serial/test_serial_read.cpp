@@ -11,6 +11,7 @@
 #include <serial_link/serial_link.h>
 #include <serial_link/sync_serial_link.h>
 #include <serial_link/serial_settings.h>
+#include "run_data.h"
 
 using namespace rbl;
 #pragma GCC diagnostic push
@@ -52,39 +53,35 @@ std::string expected(std::vector<MyVariant> input)
     result.pop_back();
     return result;
 }
-const int max_count = 1000;
-auto start_time = std::chrono::high_resolution_clock::now();
-std::chrono::time_point<std::chrono::high_resolution_clock> end_time_g;
-void* reader_thread_01(const std::string& dev)
+
+void* reader_thread_01(const std::string& dev, RunData* run_data)
 {
     serial_bridge::SerialLink serial{dev, 1};
-    int index = 100;
-    int max_index = max_count;
-    int char_count = 0;
-    std::chrono::time_point<std::chrono::high_resolution_clock>* end_time_ref = &end_time_g;
-    serial.run([&index, max_index, end_time_ref, &char_count](IoBuffer::UPtr up)
+    serial.run([run_data](IoBuffer::UPtr up)
     {
-        std::string expt = expected(make_test_case(index++));
+        std::string expt = expected(make_test_case(run_data->index));
+        run_data->update(*up);
         bool ok = (std::string{up->c_str()} == expt);
-        char_count += static_cast<int>(up->data_len());
+
         assert(ok);
-        // std::cout << "reader_thread_01  got one bool: " << ok << "   bbbbbbb " << up->c_str() << std::endl;
         up = nullptr;
-        if (index == max_index) {
-            *end_time_ref = std::chrono::high_resolution_clock::now();
-            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>((*end_time_ref) - start_time);
-            std::cout << "chars: " <<  char_count << " millisecs: "<< duration.count() << " chars / sec: " << (char_count/duration.count())*1000 << std::endl;
+        if (run_data->index == run_data->max_index) {
+            run_data->end();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>((run_data->end_time) - run_data->start_time);
+            auto d = (float)duration.count();
+            auto cps = ((float)(run_data->char_count) * 1000.0) / d;
+            std::cout << "chars: " <<  run_data->char_count << " millisecs: "<< duration.count() << " chars / sec: " << cps << std::endl;
             exit(0);
         }
     });
     return nullptr;
 }
 
-void* writer_thread_02(const std::string& dev)
+void* writer_thread_02(const std::string& dev, RunData* run_data)
 {
     serial_bridge::SyncSerialLink sync_serial{dev};
     usleep(250000);
-    for (int i = 100; i <= max_count; i++) {
+    for (int i = 100; i <= run_data->max_index; i++) {
         // usleep(15000);
         auto tc = make_test_case(i);
         for (auto element: tc) {
@@ -93,10 +90,6 @@ void* writer_thread_02(const std::string& dev)
                 [&sync_serial](std::string s){sync_serial.send(const_cast<char*>(s.c_str()), s.length());}
             }, element);
         }
-        // IoBuffer::UPtr up(new IoBuffer());
-        // auto nn = snprintf((char*)up->space_ptr(), up->space_len(), "%d BBBBBBB  This is a message\n", i);
-        // up->commit(nn);
-        // sync_serial.send(static_cast<char*>(up->data()), up->data_len());
     }
     sleep(30);
     return nullptr;
@@ -107,15 +100,17 @@ int test_loop()
     auto ans = list_serial_devices("/dev", "ttyUSB");
     std::string dev1 = std::string{"/dev/ttyUSB0"};
     std::string dev2 = std::string{"/dev/ttyUSB1"};
-    std::thread t1([dev1]() {
-        reader_thread_01(dev1);
+    auto run_data = new RunData();
+    std::thread t1([dev1, run_data]() {
+        reader_thread_01(dev1, run_data);
     });
-    std::thread t2([&dev2]()
+    std::thread t2([&dev2, run_data]()
     {
-        writer_thread_02(dev2);
+        writer_thread_02(dev2, run_data);
     });
     t1.join();
     t2.join();
+    delete run_data;
     return 0;
 }
 int main()

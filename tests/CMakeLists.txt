@@ -85,6 +85,7 @@
 # add_subdirectory(test_first_guess)
 # add_subdirectory(test_with_pico)
 add_subdirectory(test_buffers)
+add_subdirectory(test_generator)
 
 add_subdirectory(test_loop_serial)
 add_subdirectory(test_msgs)

@@ -5,7 +5,7 @@ project(cpp_serial_bridge LANGUAGES CXX C  VERSION 0.0.1)
 #if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 #  add_compile_options(-Wall -Wextra -Wpedantic -Wno-error)
 #endif()
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(PKG_DIR ${CMAKE_CURRENT_SOURCE_DIR})

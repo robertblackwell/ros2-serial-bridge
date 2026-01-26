@@ -7,11 +7,15 @@
 #include <sys/select.h>
 #include <chrono>
 #include <rbl/logger.h>
+#include <boost/asio.hpp>
 #include "serial_asio.h"
 #include "serial_settings.h"
 
 #define CARRIAGE_RETURN '\r'
 #define LINE_FEED '\n'
+namespace asio = boost::asio;
+using asio::use_awaitable;
+using asio::awaitable;
 
 serial_bridge::SerialAsio::SerialAsio(const std::string& dev, int instance_id, asio::io_context& io_context )
     : m_io_context(io_context), m_serial_fd(open_serial_non_blocking(dev)),
@@ -138,16 +142,16 @@ void serial_bridge::SerialAsio::run_start(OnRecvCallback cb)
     });
 
 }
-void serial_bridge::SerialAsio::runner(std::function<void(IoBuffer::UPtr up, boost::system::error_code& ec)> cb)
+void serial_bridge::SerialAsio::runner(const std::function<void(IoBuffer::UPtr up, boost::system::error_code& ec)>& cb)
 {
-    recv([this, cb](IoBuffer::UPtr up, boost::system::error_code& ec)
+    recv([this, &cb](IoBuffer::UPtr up, boost::system::error_code& ec)
     {
         if (!ec) {
             cb(std::move(up), ec);
-            asio::post(m_io_context, [this, &cb]()
-            {
+             asio::post(m_io_context, [this, &cb]()
+             {
                 runner(cb);
-            });
+             });
         } else {
             std::cerr << ec.message() << "\n";
             assert(0);
@@ -158,4 +162,17 @@ void serial_bridge::SerialAsio::runner(std::function<void(IoBuffer::UPtr up, boo
 void serial_bridge::SerialAsio::run(const OnRecvCallback& cb)
 {
     runner(cb);
+}
+awaitable<rbl::IoBuffer::UPtr> recv_coro(serial_bridge::SerialAsio& serial)
+{
+    try {
+        auto up = std::make_unique<IoBuffer>(1024);
+        std::size_t bytes_transferred = co_await serial.m_asio_serial_port.async_read_some(
+                boost::asio::buffer(up->space_ptr(), up->space_len()),
+                boost::asio::use_awaitable);
+        up->commit(bytes_transferred);
+        co_return std::move(up);
+    } catch (const boost::system::system_error& e) {
+        assert(0);
+    }
 }

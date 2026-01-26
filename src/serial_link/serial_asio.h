@@ -33,9 +33,9 @@ namespace serial_bridge {
 
         void send(IoBuffer::UPtr buffer_uptr);
         void recv(std::function<void(IoBuffer::UPtr, boost::system::error_code&)>);
-        void runner(std::function<void(IoBuffer::UPtr up, boost::system::error_code& ec)> cb);
+        void runner(const std::function<void(IoBuffer::UPtr up, boost::system::error_code& ec)>& cb);
         void run(const OnRecvCallback& cb);
-    private:
+    // private:
         std::string         m_device;
         int                 m_instance_id;
         int                 m_serial_fd;

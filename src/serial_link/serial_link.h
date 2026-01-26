@@ -12,8 +12,14 @@ using namespace rbl;
 namespace serial_bridge {
     class SerialLink {
     public:
-    typedef std::function<void(IoBuffer::UPtr)>  OnRecvCallback;
-    typedef std::unique_ptr<SerialLink>          UPtr; 
+        // a protocol frame arrives as an IoBuffer. The deframing process removes the protocol
+        // header and trailer info and presents the payload as an IoBuffer. The following typedefs
+        // distinguish that process
+        typedef IoBuffer MsgBuffer;
+        typedef IoBuffer::UPtr MsgBufferUPtr;
+
+        typedef std::function<void(MsgBuffer::UPtr)>  OnRecvCallback;
+        typedef std::unique_ptr<SerialLink>          UPtr;
         /**
          * The constructor only initializes a few member variables.
          * all the action takes place in run()
@@ -21,17 +27,17 @@ namespace serial_bridge {
         // explicit SerialLink();
         SerialLink(const std::string& dev, int instance_id);
         ~SerialLink();
-
-        void send_threadsafe(IoBuffer::UPtr buffer_uptr) const;
         /**
-         * SerialLink::run() tries to open the first device it finds where the path starts with
-         * /dev/ttyACM and is a tty
-         *
-         * There after it reads from and writes to that device.
-         *
-         * If any that fails it sleeps for a second and then tries again forever.
+         * Presents a message to the io machinery to be turned into a protocol frame and transmitted
+         * Msgs are transmitted in the otder of calls to this function.
+         */
+        void send_threadsafe(MsgBuffer::UPtr buffer_uptr) const;
+        /**
+         * SerialLink::run() - calls the "recv_msg_cb()" callback function for each
+         * complete message received.
          */
         void run(OnRecvCallback  recv_msg_cb);
+    private:
 
         std::unique_ptr<threadsafe::FdQueue<IoBuffer::UPtr>>      m_output_queue_uptr;
         std::unique_ptr<threadsafe::TriggerQueue<IoBuffer::UPtr>> m_client_queue_uptr;

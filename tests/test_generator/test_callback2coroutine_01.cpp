@@ -7,13 +7,14 @@
 #include <type_traits>
 #include <functional>
 #include <memory>
+#include <coroutine>
 #include <rbl/unittest.h>
 #include <rbl/iobuffer.h>
 #include <serial_link/serial_asio.h>
 #include <serial_link/sync_serial_link.h>
 #include <serial_link/serial_settings.h>
 #include <boost/asio.hpp>
-#include "run_data.h"
+#include "asio_serial_coro.h"
 
 using namespace rbl;
 using namespace boost::asio;
@@ -58,56 +59,24 @@ std::string expected(std::vector<MyVariant> input)
     result.pop_back();
     return result;
 }
-
-void* reader_thread_01(const std::string& dev, RunData* run_data)
+void* reader_thread_01(const std::string& dev)
 {
     io_context ioctx;
     serial_bridge::SerialAsio serial{dev, 1, ioctx};
-    // RunData* run_data = new RunData();
     int index = 100;
-#if 0
-    // auto cb = std::bind(&RunData::update, run_data, std::placeholders::_1, std::placeholders::_2);
-    // serial.run(std::bind(&RunData::update, run_data, std::placeholders::_1, std::placeholders::_2));
-    serial.run([run_data](IoBuffer::UPtr up, const error_code& ec)
-     {
-         if (!ec) {
-             run_data->index++;
-             std::cout << "do_read_loop.start cb [" << up->c_str() << "]" << "\n";
-         } else {
-             std::cerr << ec.message() << "\n";
-             assert(0);
-         }
-     });
-#else
-    serial.run([&](IoBuffer::UPtr up, error_code& ec)
+    serial.recv([](rbl::IoBuffer::UPtr up, boost::system::error_code& ec)
     {
-        int i = run_data->index;
-        std::string expt = expected(make_test_case(i));
-        run_data->update(*up);
-
-        bool ok = (std::string{up->c_str()} == expt);
-        assert(ok);
-        // std::cout << "reader_thread_01  got one bool: " << ok << "   bbbbbbb " << up->c_str() << std::endl;
-        up = nullptr;
-        if (run_data->index == run_data->max_index) {
-            run_data->end();
-            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>((run_data->end_time) - run_data->start_time);
-            std::cout << "chars: " << run_data->char_count << " millisecs: "<< duration.count() << " chars / sec: " << ((run_data->char_count)/duration.count())*1000 << std::endl;
-            exit(0);
-        }
+        std::cout << up->c_str() << std::endl;
     });
-#endif
     ioctx.run();
-    delete run_data;
     return nullptr;
 }
 
-void* writer_thread_02(const std::string& dev, RunData* run_data)
+void* writer_thread_02(const std::string& dev)
 {
     serial_bridge::SyncSerialLink sync_serial{dev};
     usleep(250000);
-    run_data->start();
-    for (int i = 100; i <= run_data->max_index; i++) {
+    for (int i = 100; i <= 1000; i++) {
         // usleep(15000);
         auto tc = make_test_case(i);
         for (auto element: tc) {
@@ -126,13 +95,13 @@ int test_loop()
     auto ans = list_serial_devices("/dev", "ttyUSB");
     std::string dev1 = std::string{"/dev/ttyUSB0"};
     std::string dev2 = std::string{"/dev/ttyUSB1"};
-    auto run_data = new RunData();
-    std::thread t1([dev1, run_data]() {
-        reader_thread_01(dev1, run_data);
+
+    std::thread t1([dev1]() {
+        reader_thread_01(dev1);
     });
-    std::thread t2([&dev2, run_data]()
+    std::thread t2([&dev2]()
     {
-        writer_thread_02(dev2, run_data);
+        writer_thread_02(dev2);
     });
     t1.join();
     t2.join();
@@ -140,8 +109,32 @@ int test_loop()
 }
 int main()
 {
-    UT_ADD(test_loop);
-    int rc = UT_RUN();
-    return rc;
+    auto dev1 = std::string{"/dev/ttyUSB0"};
+    auto dev2 = std::string{"/dev/ttyUSB1"};
+    std::thread t1([dev1]()
+    {
+        sleep(2);
+        writer_thread_02(dev1);
+    });
+    std::thread t2([&dev2]()
+    {
+        io_context ioctx;
+        serial_bridge::SerialAsio serial{dev2, 1, ioctx};
+        if (0) {
+            post(ioctx, [&serial]()
+            {
+                serial.recv([&](rbl::IoBuffer::UPtr up, error_code& ec)
+                {
+                    std::cout << up->c_str() << std::endl;
+                });
+            });
+        } else {
+            reader(serial);
+        }
+        ioctx.run();
+    });
+    t1.join();
+    t2.join();
+    return 0;
 }
 #pragma GCC diagnostic pop

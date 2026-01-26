@@ -8,6 +8,7 @@
 #include <format>
 #include <filesystem>
 #include <iostream>
+#include <boost/asio/serial_port.hpp>
 namespace fs = std::filesystem;
 
 #define CHECK(retval, msg) do{          \
@@ -144,7 +145,8 @@ void apply_default_settings(int fd)
     //
     // use CLION intellisense type a B and scroll down
     //
-    CHECK_FALSE((cfsetispeed(&config, B115200) < 0 || cfsetospeed(&config, B115200)), "setting baud rate with cfispeed and cfospeed")
+    // CHECK_FALSE((cfsetispeed(&config, B115200) < 0 || cfsetospeed(&config, B115200)), "setting baud rate with cfispeed and cfospeed")
+    CHECK_FALSE((cfsetispeed(&config, B460800) < 0 || cfsetospeed(&config, B460800)), "setting baud rate with cfispeed and cfospeed")
 
     //
     // Finally, apply the configuration
